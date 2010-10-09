@@ -1,10 +1,10 @@
 package MyGraph;
 use strict;
 use constant PI => scalar(4 * atan2 1, 1);
-use Mydb;
+use MyDb;
 use GD::Graph::mixed;
 use GD::SVG;
-
+my $config;
 sub new {
     my $class = shift;
     my %arg = @_;

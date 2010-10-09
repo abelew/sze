@@ -1,4 +1,4 @@
-package Mydb;
+package MyDb;
 use strict;
 use DBI;
 use SeqMisc;
@@ -21,8 +21,8 @@ $VERSION = '20091101';
 Log::Log4perl->easy_init($WARN);
 our $log = Log::Log4perl->get_logger('stack'),
 ### Holy crap global variables!
-my $config;
 my $dbh;
+my $me;
 ###
 
 sub new {
@@ -76,6 +76,7 @@ sub new {
     }
     %conf_specification_temp = (
 	'makeblast' => \$conf{makeblast},
+	'import_pollen' => \$conf{import_pollen},
 	);
     foreach my $name (keys %conf_specification_temp) {
 	$conf_specification{$name} = $conf_specification_temp{$name};
@@ -89,6 +90,11 @@ sub new {
 	}
     }
     undef(%conf);
+    if (ref($me->{database_host}) eq '') {
+	$me->{database_host} = eval($me->{database_host});
+	$me->{database_otherhost} = $me->{database_host}->[1];
+    }
+
     $me->{errors} = undef;
     return ($me);
 }
@@ -266,7 +272,7 @@ sub MyExecute {
 	print STDERR "$hour:$min:$sec $mon-$mday Execute failed for: $statement
 from: $input->{caller}
 with: error $DBI::errstr\n";
-	print STDERR "Host: $config->{database_host} Db: $config->{database_name}\n" if (defined($config->{debug}) and $config->{debug} > 0);
+	print STDERR "Host: $me->{database_host} Db: $me->{database_name}\n" if (defined($me->{debug}) and $me->{debug} > 0);
 	$me->{errors}->{statement} = $statement;
 	$me->{errors}->{errstr} = $DBI::errstr;
 	if (defined($input->{caller})) {
@@ -342,35 +348,35 @@ sub MyConnect {
     my $alt_dbd = shift;
     my $alt_user = shift;
     my $alt_pass = shift;
-    my @hosts = @{$config->{database_host}};
+    my @hosts = @{$me->{database_host}};
     my $host = sub {
 	my $value = shift;
 	my $range = scalar(@hosts);
 	my $index = $value % $range;
 	return($hosts[$index]);
     };
-    my $hostname = $host->($config->{database_retries});
+    my $hostname = $host->($me->{database_retries});
     my $dbd;
     if (defined($alt_dbd)) {
 	$dbd = $alt_dbd;
     } else {
-	$dbd = qq"dbi:$config->{database_type}:database=$config->{database_name};host=$hostname";
+	$dbd = qq"dbi:$me->{database_type}:database=$me->{database_name};host=$hostname";
     }
     my $dbh;
     use Sys::SigAction qw( set_sig_handler );
     eval {
 	my $h = set_sig_handler('ALRM', sub {return("timeout");});
 	#implement 2 second time out
-	alarm($config->{database_timeout});  ## The timeout in seconds as defined by PRFConfig
+	alarm($me->{database_timeout});  ## The timeout in seconds as defined by PRFConfig
 	my ($user, $pass);
 	if (defined($alt_user)) {
 	    $user = $alt_user;
 	    $pass = $alt_pass;
 	} else {
-	    $user = $config->{database_user};
-	    $pass = $config->{database_pass};
+	    $user = $me->{database_user};
+	    $pass = $me->{database_pass};
 	}
-	$dbh = DBI->connect_cached($dbd, $user, $pass, $config->{database_args},) or callstack();
+	$dbh = DBI->connect_cached($dbd, $user, $pass, $me->{database_args},) or callstack();
 	alarm(0);
     }; #original signal handler restored here when $h goes out of scope
     alarm(0);
@@ -378,15 +384,15 @@ sub MyConnect {
 	(defined($DBI::errstr) and
 	 $DBI::errstr =~ m/(?:lost connection|Server shutdown|Can't connect|Unknown MySQL server host|mysql server has gone away)/ix)) {  ##'
 	my $success = 0;
-	while ($config->{database_retries} < $me->{num_retries} and $success == 0) {
-	    $config->{database_retries}++;
-	    $hostname = $host->($config->{database_retries});
-	    $dbd = qq"dbi:$config->{database_type}:database=$config->{database_name};host=$hostname";
+	while ($me->{database_retries} < $me->{num_retries} and $success == 0) {
+	    $me->{database_retries}++;
+	    $hostname = $host->($me->{database_retries});
+	    $dbd = qq"dbi:$me->{database_type}:database=$me->{database_name};host=$hostname";
 	    print STDERR "Doing a retry, attempting to connect to $dbd\n";
 	    eval {
 		my $h = set_sig_handler( 'ALRM' ,sub { return("timeout") ; } );
-		alarm($config->{database_timeout});  ## The timeout in seconds as defined by PRFConfig
-		$dbh = DBI->connect_cached($dbd, $config->{database_user}, $config->{database_pass}, $config->{database_args},) or callstack();
+		alarm($me->{database_timeout});  ## The timeout in seconds as defined by PRFConfig
+		$dbh = DBI->connect_cached($dbd, $me->{database_user}, $me->{database_pass}, $me->{database_args},) or callstack();
 		alarm(0);
 	    }; #original signal handler restored here when $h goes out of scope
 	    alarm(0);
@@ -401,7 +407,7 @@ sub MyConnect {
 	$me->{errors}->{statement} = $statement, Write_SQL($statement) if (defined($statement));
 	$me->{errors}->{errstr} = $DBI::errstr;
 	my ($sec,$min,$hour,$mday,$mon,$year, $wday,$yday,$isdst) = localtime time;
-	my $error = qq"$hour:$min:$sec $mon-$mday Could not open cached connection: dbi:$config->{database_type}:database=$config->{database_name};host=$config->{database_host}, $DBI::err. $DBI::errstr";
+	my $error = qq"$hour:$min:$sec $mon-$mday Could not open cached connection: dbi:$me->{database_type}:database=$me->{database_name};host=$me->{database_host}, $DBI::err. $DBI::errstr";
 	die($error);
     }
     $dbh->{mysql_auto_reconnect} = 1;
@@ -412,7 +418,7 @@ sub MyConnect {
 sub MakeTempfile {
     my %args = @_;
     $File::Temp::KEEP_ALL = 1;
-    my $fh = new File::Temp(DIR => defined($args{directory}) ? $args{directory} : $config->{workdir},
+    my $fh = new File::Temp(DIR => defined($args{directory}) ? $args{directory} : $me->{workdir},
 			    TEMPLATE => defined($args{template}) ? $args{template} : 'XXXXX',
 			    UNLINK => defined($args{unlink}) ? $args{unlink} : 0,
 			    SUFFIX => defined($args{SUFFIX}) ? $args{SUFFIX} : '.fasta',);
@@ -424,7 +430,7 @@ sub MakeTempfile {
 
 sub AddOpen {
     my $file = shift;
-    my @open_files = @{$config->{open_files}};
+    my @open_files = @{$me->{open_files}};
 
     if (ref($file) eq 'ARRAY') {
 	foreach my $f (@{$file}) {
@@ -434,12 +440,12 @@ sub AddOpen {
     else {
 	push(@open_files, $file);
     }
-    $config->{open_files} = \@open_files;
+    $me->{open_files} = \@open_files;
 }
 
 sub RemoveFile {
     my $file = shift;
-    my @open_files = @{$config->{open_files}};
+    my @open_files = @{$me->{open_files}};
     my @new_open_files = ();
     my $num_deleted = 0;
     my @comp = ();
@@ -447,10 +453,10 @@ sub RemoveFile {
     if ($file eq 'all') {
 	foreach my $f (@{open_files}) {
 	    unlink($f);
-	    print STDERR "Deleting: $f\n" if (defined($config->{debug}) and $config->{debug} > 0);
+	    print STDERR "Deleting: $f\n" if (defined($me->{debug}) and $me->{debug} > 0);
 	    $num_deleted++;
 	}
-	$config->{open_files} = \@new_open_files;
+	$me->{open_files} = \@new_open_files;
 	return($num_deleted);
     }
 
@@ -470,7 +476,7 @@ sub RemoveFile {
 	}
 	push(@new_open_files, $f);
     }
-    $config->{open_files} = \@new_open_files;
+    $me->{open_files} = \@new_open_files;
     return($num_deleted);
 }
 
@@ -541,11 +547,28 @@ sub Tablep {
 sub Create_Pollen {
     my $me = shift;
     my $statement = qq/CREATE table pollen (
-id $config->{sql_id},
-accession $config->{sql_accession},
-type $config->{sql_accession},
-genename $config->{sql_genename},
-lastupdate $config->{sql_timestamp},
+id $me->{sql_id},
+accession $me->{sql_accession},
+tc_code varchar(10),
+tc_description varchar(80),
+family varchar(20),
+family_num int(4),
+protein_description varchar(80),
+aramemnon_con int(3),
+conpred_con int(3),
+cluster int(3),
+pollen_pref varchar(10),
+affy_id int(10),
+protein_id varchar(50),
+ms float,
+bc float,
+tc float,
+mp float,
+dry_pol float,
+30min_pt float,
+4h_pt float,
+siv_pt float,
+lastupdate $me->{sql_timestamp},
 INDEX(accession),
 INDEX(genename),
 PRIMARY KEY (id))/;
