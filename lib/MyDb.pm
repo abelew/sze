@@ -21,7 +21,7 @@ $VERSION = '20091101';
 Log::Log4perl->easy_init($WARN);
 our $log = Log::Log4perl->get_logger('stack'),
 ### Holy crap global variables!
-my $dbh;
+my $mydbh;
 my $me;
 ###
 
@@ -123,7 +123,7 @@ sub callstack {
 }
 
 sub Disconnect {
-    $dbh->disconnect() if (defined($dbh));
+    $mydbh->disconnect() if (defined($mydbh));
 }
 
 sub MySelect {
@@ -154,9 +154,9 @@ sub MySelect {
 	die("No statement in MySelect");
     }
 
-    my $dbh = $me->MyConnect($statement);
+    my $mydbh = $me->MyConnect($statement);
     my $selecttype;
-    my $sth = $dbh->prepare($statement);
+    my $sth = $mydbh->prepare($statement);
     my $rv;
     if (defined($vars)) {
 	$rv = $sth->execute(@{$vars});
@@ -263,8 +263,8 @@ sub MyExecute {
         $input = \%args;
     }
 
-    my $dbh = $me->MyConnect($statement);
-    my $sth = $dbh->prepare($statement);
+    my $mydbh = $me->MyConnect($statement);
+    my $sth = $mydbh->prepare($statement);
     my $rv;
     my @vars;
     if (defined($input->{vars})) {
@@ -290,7 +290,7 @@ with: error $DBI::errstr\n";
 	}
 	return(undef);
     } else {
-	$rows = $dbh->rows();
+	$rows = $mydbh->rows();
     }
     return($rows);
 }
@@ -337,7 +337,7 @@ sub MyGet {
 	$final_statement .= " ORDER BY $order";
     }
 
-    my $dbh = $me->MyConnect($final_statement);
+    my $mydbh = $me->MyConnect($final_statement);
     my $stuff = $me->MySelect(statement => $final_statement,);
 
     print "Column order: @select_columns\n";
@@ -372,12 +372,12 @@ sub MyConnect {
     } else {
 	$dbd = qq"dbi:$me->{database_type}:database=$me->{database_name};host=$hostname";
     }
-    my $dbh;
+    my $mydbh;
     use Sys::SigAction qw( set_sig_handler );
     eval {
 	my $h = set_sig_handler('ALRM', sub {return("timeout");});
 	#implement 2 second time out
-	alarm($me->{database_timeout});  ## The timeout in seconds as defined by PRFConfig
+	alarm($me->{database_timeout});  ## The timeout in seconds
 	my ($user, $pass);
 	if (defined($alt_user)) {
 	    $user = $alt_user;
@@ -386,11 +386,11 @@ sub MyConnect {
 	    $user = $me->{database_user};
 	    $pass = $me->{database_pass};
 	}
-	$dbh = DBI->connect_cached($dbd, $user, $pass, $me->{database_args},) or callstack();
+	$mydbh = DBI->connect_cached($dbd, $user, $pass, $me->{database_args},) or callstack();
 	alarm(0);
     }; #original signal handler restored here when $h goes out of scope
     alarm(0);
-    if (!defined($dbh) or
+    if (!defined($mydbh) or
 	(defined($DBI::errstr) and
 	 $DBI::errstr =~ m/(?:lost connection|Server shutdown|Can't connect|Unknown MySQL server host|mysql server has gone away)/ix)) {  ##'
 	my $success = 0;
@@ -401,28 +401,28 @@ sub MyConnect {
 	    print STDERR "Doing a retry, attempting to connect to $dbd\n";
 	    eval {
 		my $h = set_sig_handler( 'ALRM' ,sub { return("timeout") ; } );
-		alarm($me->{database_timeout});  ## The timeout in seconds as defined by PRFConfig
-		$dbh = DBI->connect_cached($dbd, $me->{database_user}, $me->{database_pass}, $me->{database_args},) or callstack();
+		alarm($me->{database_timeout});  ## The timeout in seconds
+		$mydbh = DBI->connect_cached($dbd, $me->{database_user}, $me->{database_pass}, $me->{database_args},) or callstack();
 		alarm(0);
 	    }; #original signal handler restored here when $h goes out of scope
 	    alarm(0);
-	    if (defined($dbh) and
-		(!defined($dbh->errstr) or $dbh->errstr eq '')) {
+	    if (defined($mydbh) and
+		(!defined($mydbh->errstr) or $mydbh->errstr eq '')) {
 		$success++;
 	    }
 	} ## End of while
     }
 
-    if (!defined($dbh)) {
+    if (!defined($mydbh)) {
 	$me->{errors}->{statement} = $statement, Write_SQL($statement) if (defined($statement));
 	$me->{errors}->{errstr} = $DBI::errstr;
 	my ($sec,$min,$hour,$mday,$mon,$year, $wday,$yday,$isdst) = localtime time;
 	my $error = qq"$hour:$min:$sec $mon-$mday Could not open cached connection: dbi:$me->{database_type}:database=$me->{database_name};host=$me->{database_host}, $DBI::err. $DBI::errstr";
 	die($error);
     }
-    $dbh->{mysql_auto_reconnect} = 1;
-    $dbh->{InactiveDestroy} = 1;
-    return ($dbh);
+    $mydbh->{mysql_auto_reconnect} = 1;
+    $mydbh->{InactiveDestroy} = 1;
+    return ($mydbh);
 }
 
 sub MakeTempfile {
@@ -501,7 +501,7 @@ sub Error_Db {
     my $statement = qq(INSERT into errors (message, accession) VALUES(?,?));
     ## Don't call Execute here or you may run into circular crazyness
     $me->MyConnect($statement,);
-    my $sth = $dbh->prepare($statement);
+    my $sth = $mydbh->prepare($statement);
     $sth->execute($message, $accession);
 }
 
@@ -610,8 +610,8 @@ sub Resolve {
 		);
     my $type = shift;
     my @array;
-    $ENV{CFLAGS}="-I$ENV{PRFDB_HOME}/usr/include -L$ENV{PRFDB_HOME}/usr/lib";
-    $ENV{LD_LIBRARY_PATH}="$ENV{LD_LIBRARY_PATH}:$ENV{PRFDB_HOME}/usr/lib";
+    $ENV{CFLAGS}="-I$ENV{MYDB_HOME}/usr/include -L$ENV{MYDB_HOME}/usr/lib";
+    $ENV{LD_LIBRARY_PATH}="$ENV{LD_LIBRARY_PATH}:$ENV{MYDB_HOME}/usr/lib";
     foreach my $d (@deps) {
 	my $response = use_ok($d);
 	diag("Testing for $d\n");

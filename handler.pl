@@ -1,5 +1,5 @@
 package HTML::Mason::Commands;
-use vars qw($session $dbh $db $ah $req $config);
+use vars qw($session $mydbh $mydb $myah $myreq);
 use Apache2::Request;
 use Apache2::Upload;
 use Data::Dumper;
@@ -15,11 +15,12 @@ BEGIN {
 	die("MYDB_HOME is not set.  Either set it in your apache env vars or shell profile.");
     }
 }
-$config = new MyDb(config_file => "$ENV{MYDB_HOME}/mydb.conf");
-my $database_hosts = $config->{database_host};
-Apache::DBI->connect_on_init("DBI:$config->{database_type}:database=$config->{database_name};host=$database_host->[0]", $config->{database_user}, $config->{database_pass}, $config->{database_args}) or print "Can't connect to database: $DBI::errstr $!";
-Apache::DBI->setPingTimeOut("DBI:$config->{database_type}:$config->{database_name}:$database_host->[0]", 0);
-$db = new MyDb(config=>$config);
+$mydb = new MyDb(config_file => "$ENV{MYDB_HOME}/mydb.conf");
+my $database_hosts = $mydb->{database_host};
+my $database_host = $database_hosts->[0];
+print STDERR "TESTME: $database_host\n";
+Apache::DBI->connect_on_init("DBI:$mydb->{database_type}:database=$mydb->{database_name};host=$database_host", $mydb->{database_user}, $mydb->{database_pass}, $mydb->{database_args}) or print "Can't connect to database: $DBI::errstr $!";
+Apache::DBI->setPingTimeOut("DBI:$mydb->{database_type}:$mydb->{database_name}:$database_host", 0);
 
 package MyDb::Handler;
 use strict;
@@ -28,11 +29,11 @@ BEGIN {
     use Exporter ();
     @MyDb::Handler::ISA = qw(Exporter);
     @MyDb::Handler::EXPORT = qw();
-    @MyDb::Handler::EXPORT_OK = qw($req $dbh $dbs);
+    @MyDb::Handler::EXPORT_OK = qw($myreq $mydbh $mydbs);
 }
 
-my $req;
-my $ah = new HTML::Mason::ApacheHandler(
+my $myreq;
+my $myah = new HTML::Mason::ApacheHandler(
 					comp_root => $ENV{MYDB_HOME},
 					data_dir => $ENV{MYDB_HOME},
 					args_method => "mod_perl",
@@ -46,11 +47,11 @@ my $ah = new HTML::Mason::ApacheHandler(
 
 sub handler {
     my ($r) =  @_;
-    my $return = eval { $ah->handle_request($r) };
+    my $return = eval { $myah->handle_request($r) };
     if (my $err = $@) {
 	$r->pnotes(error => $err);
 	$r->filename($r->document_root . '/error/500.html');
-	return $ah->handle_request($r);
+	return $myah->handle_request($r);
     }
     return $return;
 }

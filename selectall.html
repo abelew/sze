@@ -1,0 +1,7 @@
+% my $data = $mydb->MySelect(statement => "SELECT * FROM pollen",);
+% foreach my $datum (@{$data}) {
+%  foreach my $dat (@{$datum}) {
+  <% $dat %>  |
+%  }
+  <br>
+% }

@@ -22,16 +22,6 @@ if (defined($db->{import_pollen})) {
 	Import_Pollen();
     }
 }
-if (defined($db->{shell})) {
-
-
-
-
-
-
-
-
-
 
 
 ## All the functions which actually do work go below here.
