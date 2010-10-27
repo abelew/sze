@@ -585,4 +585,50 @@ PRIMARY KEY (id))/;
     $me->MyExecute(statement =>$statement, caller => "$cp, $cf, $cl",);
 }
 
+## Some code for testing dependencies
+sub Resolve {
+    use CPAN;
+    use Test::More;
+    my @deps = (
+		'Number::Format',
+		'File::Temp',
+		'DBI',
+		'AppConfig',
+		'Getopt::Long',
+		'SVG',
+		'GD::Text',
+		'GD::Graph',
+		'GD::Graph::mixed',
+		'Statistics::Basic',
+		'Statistics::Distributions',
+		'Bio::DB::Universal',
+		'Bio::Seq',
+		'Bio::SearchIO::blast',
+		'GD::SVG',
+		'Log::Log4perl',
+		'HTML::Mason',
+		);
+    my $type = shift;
+    my @array;
+    $ENV{CFLAGS}="-I$ENV{PRFDB_HOME}/usr/include -L$ENV{PRFDB_HOME}/usr/lib";
+    $ENV{LD_LIBRARY_PATH}="$ENV{LD_LIBRARY_PATH}:$ENV{PRFDB_HOME}/usr/lib";
+    foreach my $d (@deps) {
+	my $response = use_ok($d);
+	diag("Testing for $d\n");
+	if ($response != 1) {
+	    diag("$d appears to be missing, building in $ENV{MYDB_HOME}/src/perl\n");
+	    system("mkdir -p $ENV{MYDB_HOME}/src/perl");
+	    CPAN->mkmyconfig;
+	    CPAN::Shell->o('autocommit', 1);
+	    CPAN::Shell->o('conf', 'build_cache', 1024000);
+	    CPAN::Shell->o('conf', 'build_dir', "$ENV{MYDB_HOME}/src/perl");
+	    CPAN::Shell->o('conf', 'makepl_arg', "PREFIX=$ENV{MYDB_HOME}/usr");
+	    CPAN::Shell->o('conf', 'make_install_arg', "PREFIX=$ENV{MYDB_HOME}/usr");
+	    CPAN::Shell->o('conf', 'mbuild_install_arg', "PREFIX=$ENV{MYDB_HOME}/usr");
+	    CPAN::Shell->o('conf', 'make_install', "PREFIX=$ENV{MYDB_HOME}/usr make install ");
+	    CPAN::Shell->install($d);
+	}
+    }
+}
+
 1;
