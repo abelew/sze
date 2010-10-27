@@ -1,0 +1,32 @@
+% if ($accession) {
+<%perl>
+my $query_statement=  qq"SELECT * FROM pollen WHERE accession = ?";
+my $entries = $mydb->MySelect(statement => $query_statement, type => 'hash', descriptor => 1, vars => [$accession]);
+</%perl>
+
+% if ($entries == 1) {
+% foreach my $entry (sort keys %{$entries}) {
+<table>
+Information!
+</table>
+% } ## End the else there are multiple hits
+
+% } else {  ## If you haven't filled out any of the form, then provide it.
+
+<FORM action="search.html" enctype="multipart/form-data" method="POST">
+
+<center>
+  Please enter your search terms below.<br>
+<br>
+  Or choose a particular accession:  <input type="text" name="accession"  size="20">
+  <input type="submit" name="search submit" value="Search">
+</center>
+
+% }
+%}
+<%init>
+</%init>
+
+<%args>
+  $accession => undef
+</%args>

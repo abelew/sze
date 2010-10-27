@@ -1,0 +1,32 @@
+% my $path_name = $r->uri;
+% if ($path_name =~ /^\/download_/) {
+% $m->call_next;
+% } else {
+<HTML>
+   <HEAD>
+  <title>Testing testing, <% $document_title %></title>
+  <meta http-equiv="Content-Type" content="text/html">
+  <META NAME="ROBOTS" CONTENT="NOFOLLOW">
+  <META NAME="ROBOTS" CONTENT="NOINDEX">
+  <link rel="stylesheet" href="/style.css" type="text/css">
+%#  <body bgcolor="white" text="black" link="#009933" vlink="#009900" onload="doLoad()">
+  <body bgcolor="white" text="black" link="#009933" vlink="#009900">
+
+% $m->call_next;
+
+ </body>
+</html>
+% }
+
+<%init>
+  my $session = $m->session;
+  my $path = '';
+  my $columns = 9;
+  my $col_width = 11;
+</%init>
+
+
+<%args>
+   $document_title => "index"
+   $category => undef
+</%args>

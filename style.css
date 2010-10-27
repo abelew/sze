@@ -1,0 +1,164 @@
+/* Pathetically taken from my friend Joe's homepage, thanks, Joe :) */
+body {
+  background : #ffffff;
+  color : #000000;
+/*  font-family : Helvetica,Lucida,Arial,sans-serif; */
+  font-family : Arial,sans-serif;
+  margin : 0pt; 
+}
+
+.snphid {
+  visibility : hidden;
+}
+
+a.snp {
+  color : #FF0080;
+  text-decoration : none;
+  background : transparent;
+  font-weight : bold;
+}
+
+a {
+  color : #366e6d;
+  text-decoration : none;
+  background : transparent;
+  font-weight : bold;
+}
+
+a:active {
+  color : #0000cc;
+  background : transparent;
+}
+
+/* right side row spec for page "title" */
+tr.rightContent {
+  background : #d0d0d0;
+  color : #000000;
+  font-size : 133%;
+  font-weight : bold;
+}
+
+/* The left side of the big table, which contains the main menu */
+td.leftMenu {
+  background : #353232;
+  color : #353232;
+  font-weight : bold;
+  font-size : 100%;
+}
+
+/* right side of the big table */
+td.rightSide {
+  background : #353232;
+  color : #eeeeee;
+  font-weight : bold;
+  font-size : 80%;
+}
+
+/* for the text in the about.html right side */
+td.rightAbout {
+  background : transparent;
+  font-size : 85%;
+}
+
+table.Outline {
+  background : #000000;
+}
+
+/* text changes color when mouseover */
+/*a.nav:hover {
+  color : #939393;
+  font-weight : bold;
+}*/
+
+font.live {
+  font-weight : bold;
+  color : #939393;
+}
+
+font.subTitle {
+  font-weight : bold;
+  color : #204070;
+}
+
+h3.subTitle { 
+  font-weight : bold;
+  color : #939393;
+}
+
+KBD { font-weight: bold}
+
+/*PRE { background: #e0ffe0; color:black;}*/
+PRE { background: #f0fff0; color:black;}
+
+PRE.cmd { background: #fcf; color:black;}
+
+PRE.samp { background: #fff0f0; color:black;}
+
+.screen {background : #fff; color:#600; font-size:smaller;
+border : solid #333 1px;
+ padding : 3px;
+font-family : "Lucida Console", Courier, monospace }
+
+address { font-style: normal; margin-left:0.5em; margin-top:0.6em; } 
+address { text-align:left;}
+.signed { font-family : "Lucida Handwriting",  Western, cursive; }
+
+.langcode  { background: #fff none; color: #030; border: solid 1px #033;
+  padding-left:0.1em;  padding-right:0.1em;
+  font-family: "Courier New", "Lucida Console", Courier, monospace;}
+
+pre, code, samp, kbd, tt
+  { font-family : "Courier New", monospace; 
+  font-style : normal; }
+
+code, samp, kbd, tt {
+  font-size: 100%; }
+
+h1 code, h2 code, h3 code, h4 code
+  { font-weight: bold; }
+
+.numeric, .num
+  { font-family : "Courier New", monospace;
+    text-align : right; }
+
+pre { white-space : pre; }
+* {margin:0; padding:0; outline:none}
+
+table.tablesorter {
+	font-family:arial;
+	background-color: #CDCDCD;
+	margin:10px 0pt 15px;
+	font-size: 8pt;
+	width: 100%;
+	text-align: left;
+}
+table.tablesorter thead tr th, table.tablesorter tfoot tr th {
+	background-color: #e6EEEE;
+	border: 1px solid #FFF;
+	font-size: 8pt;
+	padding: 4px;
+}
+table.tablesorter thead tr .header {
+	background-image: url(/images/bg.gif);
+	background-repeat: no-repeat;
+	background-position: center right;
+	cursor: pointer;
+}
+table.tablesorter tbody td {
+	color: #3D3D3D;
+	padding: 4px;
+	background-color: #FFF;
+	vertical-align: top;
+}
+table.tablesorter tbody tr.odd td {
+	background-color:#F0F0F6;
+}
+table.tablesorter thead tr .headerSortUp {
+	background-image: url(/images/asc.gif);
+}
+table.tablesorter thead tr .headerSortDown {
+	background-image: url(/images/desc.gif);
+}
+table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSortUp {
+background-color: #8dbdd8;
+}
