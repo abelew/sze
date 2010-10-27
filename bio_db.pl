@@ -3,18 +3,17 @@ use strict;
 use vars qw"$db $config";
 use DBI;
 use lib "$ENV{HOME}/usr/lib/perl5";
-use lib '.';
+use lib 'lib';
 use MyDb qw"AddOpen RemoveFile";
 use MyGraph;
 
 my $db = new MyDb;
 
-
 if (defined($db->{import_pollen})) {
     if (!$db->Tablep('pollen')) {
 	$db->Create_Pollen();
     }
-    open(IN, "<../data/sheet.csv");
+    open(IN, "<data/sheet.csv");
     my $count = 0;
     while (my $line = <IN>) {
 	$count++;

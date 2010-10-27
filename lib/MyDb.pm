@@ -77,6 +77,7 @@ sub new {
     %conf_specification_temp = (
 	'makeblast' => \$conf{makeblast},
 	'import_pollen' => \$conf{import_pollen},
+	'shell' => \$conf{shell},
 	);
     foreach my $name (keys %conf_specification_temp) {
 	$conf_specification{$name} = $conf_specification_temp{$name};
