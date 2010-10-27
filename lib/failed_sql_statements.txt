@@ -1,3 +1,5 @@
 SHOW TABLES LIKE 'pollen';
 SHOW TABLES LIKE 'pollen';
 SHOW TABLES LIKE 'pollen';
+SHOW TABLES LIKE 'pollen';
+SHOW TABLES LIKE 'pollen';

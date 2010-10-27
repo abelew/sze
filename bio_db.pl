@@ -7,12 +7,35 @@ use lib 'lib';
 use MyDb qw"AddOpen RemoveFile";
 use MyGraph;
 
+
+## Set up the (hopefully) limited list of globals
 my $db = new MyDb;
 
+
+## Process the possible command line arguments
 if (defined($db->{import_pollen})) {
     if (!$db->Tablep('pollen')) {
 	$db->Create_Pollen();
     }
+    my $pollen_count = $db->MySelect(statement => "SELECT count(id) FROM pollen", type => 'single');
+    if ($pollen_count < 100) {
+	Import_Pollen();
+    }
+}
+if (defined($db->{shell})) {
+
+
+
+
+
+
+
+
+
+
+
+## All the functions which actually do work go below here.
+sub Import_Pollen {
     open(IN, "<data/sheet.csv");
     my $count = 0;
     while (my $line = <IN>) {

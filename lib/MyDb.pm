@@ -55,6 +55,9 @@ sub new {
     $me->{database_user} = 'guest' if (!defined($me->{database_user}));
     $me->{log} = 'sze.log' if (!defined($me->{log}));
     $me->{log_error} = 'sze.errors' if (!defined($me->{log_error}));
+    $me->{sql_accession} = 'varchar(40) NOT NULL' if (!defined($me->{sql_accession}));
+    $me->{sql_timestamp} = 'TIMESTAMP ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP' if (!defined($me->{sql_timestamp}));
+    $me->{sql_id} = 'serial' if (!defined($me->{sql_id}));
     my ($open, %data, $config_option);
     if (-r $me->{config_file}) {
 	$open = $me->{appconfig}->file($me->{config_file});
@@ -97,6 +100,12 @@ sub new {
     }
 
     $me->{errors} = undef;
+
+    if (defined($me->{shell})) {
+	my $host = $me->{database_host}->[0];
+	system("mysql -u $me->{database_user} --password=$me->{database_pass} -h $host $me->{database_name}");
+	exit(0);
+    }
     return ($me);
 }
 
@@ -571,7 +580,6 @@ dry_pol float,
 siv_pt float,
 lastupdate $me->{sql_timestamp},
 INDEX(accession),
-INDEX(genename),
 PRIMARY KEY (id))/;
     my ($cp, $cf, $cl) = caller();
     $me->MyExecute(statement =>$statement, caller => "$cp, $cf, $cl",);

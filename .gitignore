@@ -3,3 +3,5 @@
 work/*
 *.xls
 *.conf
+obj/*
+sessions
