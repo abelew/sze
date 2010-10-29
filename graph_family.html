@@ -1,0 +1,19 @@
+% if ($family) {
+% my $stmt = qq"SELECT * FROM pollen WHERE family = ?";
+% my $data = $mydb->MySelect(statement => $stmt, vars => [$family]);
+
+% if (!-f "$config->{base}/images/family/${family}.png") {
+The graph needs to be generated.  Trying now. hmm did I made a global graphing object or do I need to make these things on the fly?
+<& generate_family.html, family => $family &>
+% }
+<img src="images/family/<% $family %>.png">
+
+% } else {
+%## No family given
+<p>No family provided!</p>
+% }
+<%init>
+</%init>
+<%args>
+  $family => undef
+</%args>

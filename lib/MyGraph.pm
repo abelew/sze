@@ -20,6 +20,31 @@ sub new {
 
 sub deg2rad {PI * $_[0] / 180}
 
+sub Make_Canvas {
+    my $me = shift;
+    my %args = @_;
+    my $width = $args{width};
+    my $height = $args{height};
+    my $type = $args{type};
+    $width = 400 if (!defined($width));
+    $height = 400 if (!defined($height));
+    $type = 'bar' if (!defined($type));
+    delete($args{width});
+    delete($args{height});
+    delete($args{type});
+    my $graph;
+    if ($type eq 'bar') {
+	$graph = new GD::Graph::bars($width, $height);
+    } elsif ($type eq 'mixed') {
+	$graph = new GD::Graph::mixed($width, $height);
+    } else {
+	$graph = new GD::Graph::points($width, $height);
+    }
+    $graph->set(%args);
+    print "Did I error out?<br>\n";
+    return($graph);
+}
+
 sub Make_Landscape {
     my $me = shift;
     my $species = shift;

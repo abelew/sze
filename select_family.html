@@ -81,41 +81,50 @@ $(document).ready(function()
 % foreach my $datum (@{$data}) {
 % my ($id, $accession, $tc_code, $tc_description, $family, $family_number, $protein_description, $aramemnon, $conpred, $cluster, $pollen_pref, $affy, $protein_id, $ms, $bc, $tc, $mp, $dry_pollen, $min_30, $hr_4, $siv) = @{$datum};
     <tr>
-      <td><% $accession %></td>
-      <td><% $tc_code %></td>
-      <td><% $tc_description %></td>
-      <td><% $family %></td>
-      <td><% $family_number %></td>
-      <td><% $protein_description %></td>
-      <td><% $aramemnon %></td>
-      <td><% $conpred %></td>
-      <td><% $cluster %></td>
-      <td><% $pollen_pref %></td>
-      <td><% $affy %></td>
-      <td><% $protein_id %></td>
-      <td><% $ms %></td>
-      <td><% $bc %></td>
-      <td><% $tc %></td>
-      <td><% $mp %></td>
-      <td><% $dry_pollen %></td>
-      <td><% $min_30 %></td>
-      <td><% $hr_4 %></td>
-      <td><% $siv %></td>
+      <td align="center"><% $accession %></td>
+      <td align="center"><% $tc_code %></td>
+      <td align="center"><% $tc_description %></td>
+      <td align="center"><% $family %></td>
+      <td align="center"><% $family_number %></td>
+      <td align="center"><% $protein_description %></td>
+      <td align="center"><% $aramemnon %></td>
+      <td align="center"><% $conpred %></td>
+      <td align="center"><% $cluster %></td>
+      <td align="center"><% $pollen_pref %></td>
+      <td align="center"><% $affy %></td>
+      <td align="center"><% $protein_id %></td>
+      <td align="center"><% $ms %></td>
+      <td align="center"><% $bc %></td>
+      <td align="center"><% $tc %></td>
+      <td align="center"><% $mp %></td>
+      <td align="center"><% $dry_pollen %></td>
+      <td align="center"><% $min_30 %></td>
+      <td align="center"><% $hr_4 %></td>
+      <td align="center"><% $siv %></td>
     </tr>
 %   }
   </tbody>
 </table>
   </div> 
+<p>Lets see if I can lay down a canvas to graph these... <% $family %>
+<a href="graph_family.html?family=<% $family %>">Graph <% $family %></a>
 
-% }
+% } else {
 
 <FORM action="select_family.html" enctype="multipart/form-data" method="POST">
 <p>Fill out the list of families.</p>
-
 <select name="family">
-% my $families = $mydb->MySelect(statement = qq"SELECT distinct(family) FROM pollen");
+% my $families = $mydb->MySelect(statement => qq"SELECT distinct(family) FROM pollen ORDER BY family");
 % foreach my $family (@{$families}) {
-  <option value="<% $family->[0] %>">
+  <option value="<% $family->[0] %>"><% $family->[0] %></option>
 % }
 </select>
 <input type="submit" name="Family Submit" value="Family Submit">
+</form>
+
+% }
+<%init>
+</%init>
+<%args>
+  $family => undef
+</%args>

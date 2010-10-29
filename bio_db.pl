@@ -2,14 +2,14 @@
 use strict;
 use vars qw"$db $config";
 use DBI;
-use lib "$ENV{HOME}/usr/lib/perl5";
-use lib 'lib';
+use lib "$ENV{MYDB_HOME}/usr/lib/perl5";
+use lib "$ENV{MYDB_HOME}/lib";
 use MyDb qw"AddOpen RemoveFile";
 use MyGraph;
 
 
 ## Set up the (hopefully) limited list of globals
-my $db = new MyDb;
+my $db = new MyDb(config_file => "$ENV{MYDB_HOME}/mydb.conf");
 
 
 ## Process the possible command line arguments
@@ -33,6 +33,7 @@ sub Import_Pollen {
 	next if ($count == 1);
 	chomp $line;
 	my $stmt = qq"INSERT INTO pollen (accession,tc_code,tc_description,family,family_num,protein_description,aramemnon_con,conpred_con,cluster,pollen_pref,affy_id,protein_id,ms,bc,tc,mp,dry_pol,30min_pt,4h_pt,siv_pt) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+	$line =~ s/\"//g;
 	my @datum = split(/\,/, $line);
 	my ($cp,$cf,$cl) = caller();
 	$db->MyExecute(statement => $stmt,

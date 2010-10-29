@@ -1,0 +1,17 @@
+<br>
+Making graph for <% $family %>
+ok doofus, remember what the data fields mean.
+
+<%perl>
+my $stmt = qq"SELECT id, accession, ms, bc, tc, mp FROM pollen WHERE family = ?";
+my $points = $db->MySelect(statement => $stmt, vars => [$family]);
+my $bar = new MyGraph(config => $mydb);
+my $canvas = $bar->Make_Canvas(width => 400, height => 400, type => 'bar', x_label => 'family', y_label => 'reading', title => 'Family graph', show_values => 1, values_vertical => 1, x_labels_vertical => 1,);
+</%perl>
+
+Holy crappers I generated a working canvas with that data on the second try!<br>
+Now to make a pretty graph with it!
+
+<%args>
+ $family => undef
+</%args>
