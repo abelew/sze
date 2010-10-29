@@ -1,0 +1,121 @@
+% if ($family) {
+% my $stmt = qq"SELECT * FROM pollen WHERE family = ?";
+% my $data = $mydb->MySelect(statement => $stmt, vars => [$family]);
+<script type="text/javascript" src="/js/jquery.js"></script>
+<script type="text/javascript" src="/js/jquery.tablesorter.js"></script>
+<script type="text/javascript" src="/js/jquery.tablesorter.pager.js"></script>
+<script type="text/javascript" id="js">
+$(document).ready(function()
+ {
+  $("#pollen")
+  .tablesorter({widthFixed: true, widgets: ['zebra'],})
+  .tablesorterPager({container: $("#pager")});
+  $("#pollen").bind("sortStart",function() { 
+      $("#overlay").show(); 
+  }).bind("sortEnd",function() { 
+      $("#overlay").hide(); 
+  }); 
+ })
+</script>
+<style>
+#overlay {
+	top: 100px;
+	left: 50%;
+	position: absolute;
+	margin-left: -100px;
+	width: 200px;
+	text-align: center;
+	display: none;
+	margin-top: -10px;
+	background: #000;
+	color: #FFF;
+}
+</style>
+<div id="overlay">
+  Please wait...
+</div>
+<div id="main">
+ <!--- <div id="pager" class="pager">   --->
+  <div id="pager">
+	<form> 
+		<img src="/images/first.png" class="first"/> 
+		<img src="/images/prev.png" class="prev"/> 
+		<input type="text" class="pagedisplay"/> 
+		<img src="/images/next.png" class="next"/> 
+		<img src="/images/last.png" class="last"/> 
+		<select class="pagesize"> 
+			<option selected="selected"  value="50">50</option> 
+			<option value="10">10</option> 
+			<option value="25">25</option> 
+			<option value="100">100</option> 
+		</select> 
+	</form> 
+  </div> 
+  <div id="data">
+<table cellpadding="0" cellspacing="0" border="0" id="pollen" class="tablesorter">
+  <thead>
+    <tr>
+      <th><h3>Accession</h3></th>
+      <th><h3>TC code</h3></th>
+      <th><h3>TC description</h3></th>
+      <th><h3>Family</h3></th>
+      <th><h3>Family number</h3></th>
+      <th><h3>Protein Description</h3></th>
+      <th><h3>Aramemnon</h3></th>
+      <th><h3>Conpred</h3></th>
+      <th><h3>Cluster</h3></th>
+      <th><h3>Pollen Pref</h3></th>
+      <th><h3>Affymetrix ID</h3></th>
+      <th><h3>Protein ID</h3></th>
+      <th><h3>MS</h3></th>
+      <th><h3>BC</h3></th>
+      <th><h3>TC</h3></th>
+      <th><h3>MP</h3></th>
+      <th><h3>Dry Pollen</h3></th>
+      <th><h3>30 min</h3></th>
+      <th><h3>4 hr</h3></th>
+      <th><h3>SIV</h3></th>
+    </tr>
+  </thead>
+  <tbody>
+% foreach my $datum (@{$data}) {
+% my ($id, $accession, $tc_code, $tc_description, $family, $family_number, $protein_description, $aramemnon, $conpred, $cluster, $pollen_pref, $affy, $protein_id, $ms, $bc, $tc, $mp, $dry_pollen, $min_30, $hr_4, $siv) = @{$datum};
+    <tr>
+      <td><% $accession %></td>
+      <td><% $tc_code %></td>
+      <td><% $tc_description %></td>
+      <td><% $family %></td>
+      <td><% $family_number %></td>
+      <td><% $protein_description %></td>
+      <td><% $aramemnon %></td>
+      <td><% $conpred %></td>
+      <td><% $cluster %></td>
+      <td><% $pollen_pref %></td>
+      <td><% $affy %></td>
+      <td><% $protein_id %></td>
+      <td><% $ms %></td>
+      <td><% $bc %></td>
+      <td><% $tc %></td>
+      <td><% $mp %></td>
+      <td><% $dry_pollen %></td>
+      <td><% $min_30 %></td>
+      <td><% $hr_4 %></td>
+      <td><% $siv %></td>
+    </tr>
+%   }
+  </tbody>
+</table>
+  </div> 
+
+% }
+
+<FORM action="select_family.html" enctype="multipart/form-data" method="POST">
+<p>Fill out the list of families.</p>
+
+<select name="family">
+% my $families = $mydb->MySelect(statement = qq"SELECT distinct(family) FROM pollen");
+% foreach my $family (@{$families}) {
+  <option value="<% $family->[0] %>">
+% }
+</select>
+<input type="submit" name="Family Submit" value="Family Submit">
