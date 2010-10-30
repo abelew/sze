@@ -37,6 +37,8 @@ sub Make_Canvas {
 	$graph = new GD::Graph::bars($width, $height);
     } elsif ($type eq 'mixed') {
 	$graph = new GD::Graph::mixed($width, $height);
+    } elsif ($type eq 'linespoints') {
+	$graph = new GD::Graph::linespoints($width, $height);
     } else {
 	$graph = new GD::Graph::points($width, $height);
     }

@@ -44,6 +44,7 @@ sub new {
 	    DEFAULT => "<unset>",
 	    ARGCOUNT => 1,
 	},});
+    $me->{base} = $ENV{MYDB_HOME};
     $me->{config_file} = 'sze.conf' if (!defined($me->{config_file}));
     $me->{database_args} = {AutoCommit => 1} if (!defined($me->{database_args}));
     $me->{database_host} = ['localhost',] if (!defined($me->{database_host}));
@@ -107,6 +108,27 @@ sub new {
 	exit(0);
     }
     return ($me);
+}
+
+sub MySession {
+    my $me = shift;
+    my $session = shift;
+#    $me->print_session($session);
+    my $id = $session->{_session_id};
+    my $csession = $me->{csession};
+    my $ret = $csession->{$id};
+
+    foreach my $k (keys %{$session}) {
+	next if ($k eq '_session_id');
+	if (defined($ret->{$k})) {
+	    my $new_key = qq"${k}_bak";
+	    $ret->{$new_key} = $ret->{$k};
+	}
+	$ret->{$k} = $session->{$k};
+    }
+    $csession->{$id} = $ret;
+    $me->{csession} = $csession;
+    return($ret);
 }
 
 sub callstack {

@@ -9,7 +9,7 @@
   <META NAME="ROBOTS" CONTENT="NOFOLLOW">
   <META NAME="ROBOTS" CONTENT="NOINDEX">
   <link rel="stylesheet" href="/style.css" type="text/css">
-%#  <body bgcolor="white" text="black" link="#009933" vlink="#009900" onload="doLoad()">
+%#  <body bgcolor="white" text="black" link="#009933" vlink="#009900" onload="">
   <body bgcolor="white" text="black" link="#009933" vlink="#009900">
 
 % $m->call_next;
@@ -19,11 +19,23 @@
 % }
 
 <%init>
-  my $session = $m->session;
+  $csession = $mydb->MySession($m->session);
+  $m->session->{uri} = $r->uri;
+  foreach my $k (keys %{$m->session}) {
+    $mysession->{$k} = $m->session->{$k};
+  }
+
   my $path = '';
   my $columns = 9;
   my $col_width = 11;
 </%init>
+
+<%cleanup>
+  foreach my $k (keys %{$mysession}) {
+    $m->session->{$k} = $mysession->{$k};
+  }
+  $csession = $mydb->MySession($csession);
+</%cleanup>
 
 
 <%args>

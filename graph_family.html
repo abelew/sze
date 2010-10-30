@@ -2,10 +2,50 @@
 % my $stmt = qq"SELECT * FROM pollen WHERE family = ?";
 % my $data = $mydb->MySelect(statement => $stmt, vars => [$family]);
 
-% if (!-f "$config->{base}/images/family/${family}.png") {
-The graph needs to be generated.  Trying now. hmm did I made a global graphing object or do I need to make these things on the fly?
-<& generate_family.html, family => $family &>
-% }
+<%perl>
+my @id_list = ();
+my $params = $r->param;
+foreach my $k (keys %{$params}) {
+  next unless ($k =~ /^id_/);
+  my ($trash, $id) = split(/_/, $params->{$k});
+  push(@id_list, $id);
+}
+
+my $points = $mydb->MySelect(statement => $stmt, vars => [$family]);
+my $graph = new GD::Graph::linespoints(800,600);
+$graph->set(x_label => 'Stage', y_label => 'Expression', y_label_skip => 2, skip_undef => 1,title => 'Family graph', show_values => 0, x_labels_vertical => 0, line_width => 4, marker_size => 6);
+$graph->set( markers => [1, 5, 7,] );
+$graph->set_legend_font("$ENV{MYDB_HOME}/fonts/arial.ttf", 12);
+$graph->set_x_axis_font("$ENV{MYDB_HOME}/fonts/arial.ttf", 12);
+$graph->set_x_label_font("$ENV{MYDB_HOME}/fonts/arial.ttf",12);
+$graph->set_y_axis_font("$ENV{MYDB_HOME}/fonts/arial.ttf", 12);
+$graph->set_y_label_font("$ENV{MYDB_HOME}/fonts/arial.ttf",12);
+my @data = ();
+my $count = 0;
+$data[0] = ['ms','bc','tc','mp','','dry','30m','4h','siv'];
+my @legend = ();
+## Only include the ids which are still checked
+foreach my $i (@id_list) {
+  foreach my $point (@{$points}) {
+    if ($i == $point->[0]) {
+      push(@legend, $point->[12]);
+      $count++;
+      my $datum = [$point->[13], $point->[14], $point->[15], $point->[16], undef, $point->[17], $point->[18], $point->[19], $point->[20]];
+      $data[$count] = $datum;
+     }
+  }
+}
+
+$graph->set_legend(@legend);
+my $image = $graph->plot(\@data) or callstack(), print($graph->error);
+my $filename = qq"$ENV{MYDB_HOME}/images/family/${family}.png";
+if (defined($image)) {
+  open(IMG, ">$filename");
+  print IMG $image->png;
+  close IMG;
+}
+</%perl>
+
 <img src="images/family/<% $family %>.png">
 
 % } else {
@@ -16,4 +56,5 @@ The graph needs to be generated.  Trying now. hmm did I made a global graphing o
 </%init>
 <%args>
   $family => undef
+  $ids => undef
 </%args>

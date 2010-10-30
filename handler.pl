@@ -1,5 +1,5 @@
 package HTML::Mason::Commands;
-use vars qw($session $mydbh $mydb $myah $myreq);
+use vars qw($csession $mysession $mydbh $mydb $myah $myreq);
 use Apache2::Request;
 use Apache2::Upload;
 use Data::Dumper;
@@ -18,7 +18,6 @@ BEGIN {
 $mydb = new MyDb(config_file => "$ENV{MYDB_HOME}/mydb.conf");
 my $database_hosts = $mydb->{database_host};
 my $database_host = $database_hosts->[0];
-print STDERR "TESTME: $database_host\n";
 Apache::DBI->connect_on_init("DBI:$mydb->{database_type}:database=$mydb->{database_name};host=$database_host", $mydb->{database_user}, $mydb->{database_pass}, $mydb->{database_args}) or print "Can't connect to database: $DBI::errstr $!";
 Apache::DBI->setPingTimeOut("DBI:$mydb->{database_type}:$mydb->{database_name}:$database_host", 0);
 
@@ -29,7 +28,7 @@ BEGIN {
     use Exporter ();
     @MyDb::Handler::ISA = qw(Exporter);
     @MyDb::Handler::EXPORT = qw();
-    @MyDb::Handler::EXPORT_OK = qw($myreq $mydbh $mydbs);
+    @MyDb::Handler::EXPORT_OK = qw($csession $mysession $myreq $mydbh $mydbs);
 }
 
 my $myreq;
