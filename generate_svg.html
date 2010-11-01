@@ -1,0 +1,52 @@
+<%perl>
+my $filename = qq"$ENV{MYDB_HOME}/images/family/${family}.svg";
+my @fields = ('ms','bc','tc','mp','dry','30m','4h','siv');
+use SVG::TT::Graph::Line;
+my $svg_graph = new SVG::TT::Graph::Line({
+  height => $height,
+  width => $width + 400,
+  fields => \@fields,
+  show_data_points => 1,
+  show_data_values => 0,
+  show_x_labels => 1,
+  show_y_labels => 1,
+  show_x_title => 1,
+  x_title => 'Assay',
+  show_y_title => 1,
+  y_title => 'Expression',
+  show_graph_title => 0,
+  key => 1,
+  key_position => 'right',
+  tidy => 1,  
+});
+$svg_graph->compress(0);
+$svg_graph->style_sheet("/graph.css");
+
+## Fill the id list with everything if it is null
+if (scalar(@{$id_list}) == 0) {
+  for my $c (0 .. $#$points) {
+   $id_list->[$c] = $points->[$c]->[0];
+  }
+}
+
+## Only include the ids which are still checked
+foreach my $i (@{$id_list}) {
+  foreach my $point (@{$points}) {
+    if ($i == $point->[0]) {
+      my $datum = [$point->[13], $point->[14], $point->[15], $point->[16], $point->[17], $point->[18], $point->[19], $point->[20]];
+      $svg_graph->add_data({ data => $datum, title => $point->[12] });
+    }
+  } 
+}
+open(OUT, ">$filename");
+print OUT $svg_graph->burn();
+close OUT;
+</%perl>
+
+<%args>
+ $width => 600
+ $height => 600
+ $id_list => undef
+ $points => undef
+ $family => undef
+</%args>

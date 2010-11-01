@@ -1,0 +1,453 @@
+.svgBackground{
+ fill:#ffffff;
+}
+.graphBackground{
+ fill:#f0f0f0;
+}
+/* graphs titles */
+.mainTitle{
+ text-anchor: middle;
+ fill: #000000;
+ font-size: 16px;
+ font-family: "Arial", sans-serif;
+ font-weight: bold;
+}
+.subTitle{
+ text-anchor: middle;
+ fill: #999999;
+ font-size: 12px;
+ font-family: "Arial", sans-serif;
+ font-weight: normal;
+}
+.axis{
+ stroke: #000000;
+ stroke-width: 2px;
+}
+.guideLines{
+ stroke: #666666;
+ stroke-width: 1px;
+ stroke-dasharray: 5 5;
+}
+.xAxisLabels{
+ text-anchor: middle;
+ fill: #000000;
+ font-size: 14px;
+ font-family: "Arial", sans-serif;
+ font-weight: normal;
+}
+.yAxisLabels{
+ text-anchor: end;
+ fill: #000000;
+ font-size: 14px;
+ font-family: "Arial", sans-serif;
+ font-weight: normal;
+}
+.xAxisTitle{
+ text-anchor: middle;
+ fill: #000000;
+ font-size: 14px;
+ font-family: "Arial", sans-serif;
+ font-weight: normal;
+}
+.yAxisTitle{
+ fill: #000000;
+ text-anchor: middle;
+ font-size: 14px;
+ font-family: "Arial", sans-serif;
+ font-weight: normal;
+}
+.dataPointLabel{
+ fill: #000000;
+ text-anchor:middle;
+ font-size: 12px;
+ font-family: "Arial", sans-serif;
+ font-weight: normal;
+}
+.staggerGuideLine{
+ fill: none;
+ stroke: #000000;
+ stroke-width: 0.5px;	
+}
+/* default fill styles */
+/* I am pretty sure these only matter if you fill in the surface area under the line. */
+.fill1{
+// fill: #FF8500;
+ fill: #000000;
+ fill-opacity: 0.8;
+ stroke: 1;
+}
+.fill2{
+ fill: #8500ff;
+ fill-opacity: 0.2;
+ stroke: none;
+}
+.fill3{
+ fill: #00cc00;
+ fill-opacity: 0.2;
+ stroke: none;
+}
+.fill4{
+ fill: #ffcc00;
+ fill-opacity: 0.2;
+ stroke: none;
+}
+.fill5{
+ fill: #00ccff;
+ fill-opacity: 0.2;
+ stroke: none;
+}
+.fill6{
+// fill: #ff00ff;
+ fill: #000000;
+ fill-opacity: 1.0;
+ stroke: vertical;
+}
+.fill7{
+/* fill: #00ffff; */
+ fill: #00cc00;
+ fill-opacity: 1.0;
+ stroke: #00cc00;
+}
+.fill8{
+// fill: #ffff00;
+ fill: #000000;
+ fill-opacity: 1.0;
+ stroke: #000000;
+ stroke-width: 4px;
+}
+.fill9{
+// fill: #cc6666;
+ fill: #000000;
+ fill-opacity: 1.0;
+ stroke: #000000;
+ stroke-width: 4px;
+}
+.fill10{
+ fill: #663399;
+ fill-opacity: 0.2;
+ stroke: none;
+}
+.fill11{
+ fill: #339900;
+ fill-opacity: 0.2;
+ stroke: none;
+}
+.fill12{
+ fill: #9966FF;
+ fill-opacity: 0.2;
+ stroke: none;
+}
+.fill13{
+ fill: #FF8500;
+ fill-opacity: 0.2;
+ stroke: none;
+}
+.fill14{
+ fill: #8500ff;
+ fill-opacity: 0.2;
+ stroke: none;
+}
+.fill15{
+ fill: #00cc00;
+ fill-opacity: 0.2;
+ stroke: none;
+}
+.fill16{
+ fill: #ffcc00;
+ fill-opacity: 0.2;
+ stroke: none;
+}
+.fill17{
+ fill: #00ccff;
+ fill-opacity: 0.2;
+ stroke: none;
+}
+.fill18{
+ fill: #ff00ff;
+ fill-opacity: 0.2;
+ stroke: none;
+}
+.fill19{
+ fill: #00ffff;
+ fill-opacity: 0.2;
+ stroke: none;
+}
+.fill20{
+ fill: #ffff00;
+ fill-opacity: 0.2;
+ stroke: none;
+}
+.fill21{
+ fill: #cc6666;
+ fill-opacity: 0.2;
+ stroke: none;
+}
+.fill22{
+ fill: #663399;
+ fill-opacity: 0.2;
+ stroke: none;
+}
+.fill23{
+ fill: #339900;
+ fill-opacity: 0.2;
+ stroke: none;
+}
+.fill24{
+ fill: #9966FF;
+ fill-opacity: 0.2;
+ stroke: none;
+}
+/* default line styles */
+/* These change the line, but not the data point */
+.line1{
+ fill: none;
+ stroke: #ff0000;
+ stroke-width: 3px;	
+}
+.line2{
+ fill: none;
+ stroke: #00ff00;
+ stroke-width: 3px;
+}
+.line3{
+ fill: none;
+ stroke: #0000ff;
+ stroke-width: 3px;	
+}
+.line4{
+ fill: none;
+ stroke: #ffcc00;
+ stroke-width: 3px;	
+}
+.line5{
+ fill: none;
+ stroke: #00ccff;
+ stroke-width: 3px;	
+}
+.line6{
+ fill: none;
+ stroke: #ff00ff;
+ stroke-width: 3px;	
+}
+.line7{
+ fill: none;
+// stroke: #00ffff;
+ stroke: #00cc00;
+ stroke-width: 3px;
+}
+.line8{
+ fill: none;
+ stroke: #ffff00;
+ stroke-width: 3px;	
+}
+.line9{
+ fill: none;
+ stroke: #cc6666;
+ stroke-width: 3px;	
+}
+.line10{
+ fill: none;
+ stroke: #663399;
+ stroke-width: 3px;	
+}
+.line11{
+  fill: none;
+  stroke: #339900;
+  stroke-width: 3px;
+}
+.line12{
+  fill: none;
+  stroke: #9966FF;
+  stroke-width: 3px;  
+}
+.line13{
+ fill: none;
+ stroke: #ff0000;
+ stroke-width: 3px;	
+}
+.line14{
+ fill: none;
+ stroke: #00ff00;
+ stroke-width: 3px;
+}
+.line15{
+ fill: none;
+ stroke: #0000ff;
+ stroke-width: 3px;	
+}
+.line16{
+ fill: none;
+ stroke: #ffcc00;
+ stroke-width: 3px;	
+}
+.line17{
+ fill: none;
+ stroke: #00ccff;
+ stroke-width: 3px;	
+}
+.line18{
+ fill: none;
+ stroke: #ff00ff;
+ stroke-width: 3px;	
+}
+.line19{
+ fill: none;
+ stroke: #00ffff;
+ stroke-width: 3px;	
+}
+.line20{
+ fill: none;
+ stroke: #ffff00;
+ stroke-width: 3px;	
+}
+.line21{
+ fill: none;
+ stroke: #cc6666;
+ stroke-width: 3px;	
+}
+.line22{
+ fill: none;
+ stroke: #663399;
+ stroke-width: 3px;	
+}
+.line23{
+ fill: none;
+ stroke: #339900;
+ stroke-width: 3px;
+}
+.line24{
+ fill: none;
+ stroke: #9966FF;
+ stroke-width: 3px;  
+}
+/* These change the data point. */
+/* default line styles */
+/* fill is the color of the data point itself */
+/* stroke is the color of a circle around the data point */
+.key1,.fill1{
+ fill: #ff8500;
+ stroke: #ff8500;
+ stroke-width: 2px;	
+}
+.key2,.fill2{
+ fill: #8850ff;
+ stroke: #8850ff;
+ stroke-width: 2px;	
+}
+.key3,.fill3{
+ fill: #0085ff;
+ stroke: #0085ff;
+ stroke-width: 2px;	
+}
+.key4,.fill4{
+ fill: #ffcc00;
+ stroke: #ffcc00;
+ stroke-width: 2px;	
+}
+.key5,.fill5{
+ fill: #00ccff;
+ stroke: #00ccff;
+ stroke-width: 2px;	
+}
+.key6,.fill6{
+ fill: #ff00ff;
+ stroke: #ff00ff;
+ stroke-width: 2px;	
+}
+.key7,.fill7{
+ fill: #00cc00;
+ stroke: #00cc00;
+ stroke-width: 2px;	
+}
+.key8,.fill8{
+ fill: #ffff00;
+ stroke: #ffff00;
+ stroke-width: 2px;	
+}
+.key9,.fill9{
+ fill: #cc6666;
+ stroke: #cc6666;
+ stroke-width: 2px;	
+}
+.key10,.fill10{
+ fill: #663399;
+ stroke: #663399;
+ stroke-width: 2px;	
+}
+.key11,.fill11{
+ fill: #339900;
+ stroke: #339900;
+ stroke-width: 2px;  
+}
+.key12,.fill12{
+ fill: #9966ff;
+ stroke: #9966ff;
+ stroke-width: 2px;  
+}
+.key13,.fill13{
+ fill: #ff8500;
+ stroke: #bb4100;
+ stroke-width: 2px;
+}
+.key14,.fill14{
+ fill: #8850ff;
+ stroke: #4410bb;
+ stroke-width: 2px;
+}
+.key15,.fill15{
+ fill: #0085ff;
+ stroke: #0041bb;
+ stroke-width: 2px;
+}
+.key16,.fill16{
+ fill: #ffcc00;
+ stroke: #bb9900;
+ stroke-width: 2px;
+}
+.key17,.fill17{
+ fill: #00ccff;
+ stroke: #0099bb;
+ stroke-width: 2px;
+}
+.key18,.fill18{
+ fill: #ff00ff;
+ stroke: #bb00bb;
+ stroke-width: 2px;
+}
+.key19,.fill19{
+ fill: #00cc00;
+ stroke: #009900;
+ stroke-width: 2px;
+}
+.key20,.fill20{
+ fill: #ffff00;
+ stroke: #bbbb00;
+ stroke-width: 2px;
+}
+.key21,.fill21{
+ fill: #cc6666;
+  stroke: #992222;
+  stroke-width: 2px;
+}
+.key22,.fill22{
+ fill: #663399;
+ stroke: #220055;
+ stroke-width: 2px;
+}
+.key23,.fill23{
+ fill: #339900;
+ stroke: #005500;
+ stroke-width: 2px;
+}
+.key24,.fill24{
+ fill: #9966ff;
+ stroke: #5511bb;
+ stroke-width: 2px;
+}
+.keyText{
+ fill: #000000;
+ text-anchor:start;
+ font-size: 12px;
+ font-family: "Arial", sans-serif;
+ font-weight: normal;
+}

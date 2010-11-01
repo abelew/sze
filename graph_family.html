@@ -1,92 +1,21 @@
 % if ($family) {
 % my $stmt = qq"SELECT * FROM pollen WHERE family = ?";
-% my $data = $mydb->MySelect(statement => $stmt, vars => [$family]);
+% my $points = $mydb->MySelect(statement => $stmt, vars => [$family]);
+% my $width = 600;
+% my $height = 600;
+% my @id_list = ();
+% my $params = $r->param;
+% foreach my $k (keys %{$params}) {
+%   next unless ($k =~ /^id_/);
+%   my ($trash, $id) = split(/_/, $params->{$k});
+% #  print "TESTME: Adding $id<br>\n";
+%   push(@id_list, $id);
+% }
 
-<%perl>
-my $width = 600;
-my $height = 600;
-my @id_list = ();
-my $params = $r->param;
-foreach my $k (keys %{$params}) {
-  next unless ($k =~ /^id_/);
-  my ($trash, $id) = split(/_/, $params->{$k});
-#  print "TESTME: Adding $id<br>\n";
-  push(@id_list, $id);
-}
-
-my $points = $mydb->MySelect(statement => $stmt, vars => [$family]);
-my $graph = new GD::Graph::linespoints($width, $height);
-#my $graph = new GD::Graph::linespoints($width * 4, $height * 4);
-$graph->set(x_label => 'Stage', y_label => 'Expression', y_label_skip => 2, skip_undef => 1,title => 'Family graph', show_values => 0, x_labels_vertical => 0, line_width => 4, marker_size => 6, transparent => 0);
-$graph->set(markers => [1, 5, 7,]);
-$graph->set_legend_font("$ENV{MYDB_HOME}/fonts/arial.ttf", 12);
-$graph->set_x_axis_font("$ENV{MYDB_HOME}/fonts/arial.ttf", 12);
-$graph->set_x_label_font("$ENV{MYDB_HOME}/fonts/arial.ttf",12);
-$graph->set_y_axis_font("$ENV{MYDB_HOME}/fonts/arial.ttf", 12);
-$graph->set_y_label_font("$ENV{MYDB_HOME}/fonts/arial.ttf",12);
-my @data = ();
-my $count = 0;
-$data[0] = ['ms','bc','tc','mp','','dry','30m','4h','siv'];
-my @legend = ();
-## Only include the ids which are still checked
-if (scalar(@id_list) == 0) {
-  foreach my $point (@{$points}) {
-    push(@id_list, $point->[0]);
-  }
-}
-
-foreach my $i (@id_list) {
-#  print "TESTME: Searching for $i<br>\n";
-  foreach my $point (@{$points}) {
-    if ($i == $point->[0]) {
-      push(@legend, $point->[12]);
-      $count++;
-      my $datum = [$point->[13], $point->[14], $point->[15], $point->[16], undef, $point->[17], $point->[18], $point->[19], $point->[20]];
-      $data[$count] = $datum;
-     }
-  }
-}
-my $filename = qq"$ENV{MYDB_HOME}/images/family/${family}.png";
-if (-r $filename) {
-#  print "TESTME: found the filename $filename\n";
-  unlink($filename);
-}
-$graph->set_legend(@legend);
-my $image = $graph->plot(\@data) or callstack(), print($graph->error);
-my $source = $graph->gd();
-#use GD::Image;
-#my $dest = new GD::Image($width, $height);
-#$dest->copyResampled($source, 0,0,0,0,$width,$height, $width * 4, $height * 4);
-
-
-#$dest->copyResampled($image, 0, 0, 0, 0, $width, $height, $width * 4, $height * 4);
-if (defined($image)) {
-  open(IMG, ">$filename");
-#  print IMG $dest->png;
-  print IMG $image->png;
-  close IMG;
-}
-
-#my $truecolor = 1;
-#my $src = GD::Image->newFromPng($filename, [$truecolor]);
-#my $dst = new GD::Image($width, $height, [$truecolor]);
-#$dst->alphaBlending(1);
-#$dst->copyResampled($src,0,0,0,0,$width,$height, $width, $height);
-#my $f = $filename;
-#$f =~ s/\.png/v2\.png/g;
-#open(IMG, ">$f");
-#print IMG $dst->png;
-#close IMG;
-
-#use Image::Magick;
-#my $new_image = new Image::Magick;
-#my $new_x = $new_image->Read($f);
-#$new_x = $new_image->AdaptiveBlue('0x1');
-#$new_x = $new_image->Write($f);
-
-</%perl>
-
-<center><img src="images/family/<% $family %>.png"><br>
+<& generate_gd.html, width => $width, height => $height, points => $points, id_list => \@id_list, family => $family &>
+<& generate_svg.html, width => $width, height => $height, points => $points, id_list => \@id_list, family => $family &>
+<center>
+  <img src="images/family/<% $family %>.png"><embed id="svg" src="images/family/<% $family %>.svg" align="bottom" width="1000" height="600"></embed>
 </center>
 
 % } else {

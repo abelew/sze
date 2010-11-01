@@ -627,6 +627,7 @@ sub Resolve {
 		'Bio::Seq',
 		'Bio::SearchIO::blast',
 		'GD::SVG',
+		'SVG::TT::Graph',
 		'Log::Log4perl',
 		'HTML::Mason',
 		);

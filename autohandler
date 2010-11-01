@@ -4,7 +4,7 @@
 % } else {
 <HTML>
    <HEAD>
-  <title>Testing testing, <% $document_title %></title>
+  <title>Pollen Expression Data: <% $document_title %></title>
   <meta http-equiv="Content-Type" content="text/html">
   <META NAME="ROBOTS" CONTENT="NOFOLLOW">
   <META NAME="ROBOTS" CONTENT="NOINDEX">
