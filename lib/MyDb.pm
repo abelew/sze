@@ -653,6 +653,31 @@ PRIMARY KEY (id))";
     $me->MyExecute(statement => $statement,);
 }
 
+<<<<<<< HEAD:lib/MyDb.pm
+=======
+sub Create_Annotation {
+    my $me = shift;
+    my $statement = qq"CREATE table annotation (
+id $me->{sql_id},
+category varchar(20),
+tc_code varchar(10),
+family_name varchar(40),
+family_abbrev varchar(10),
+family_num varchar(10),
+prot_descr_tair text,
+prot_descr_honys text,
+prot_descr_qin text,
+tm int(2),
+pollen_specific varchar(10),
+affy_id_qin varchar(20),
+agi_num_qin varchar(12),
+protein_id varchar(30)
+INDEX(affy_id_qin),
+PRIMARY KEY(id))";
+    $me->MyExecute(statement =>$statement,);
+}
+
+>>>>>>> e9afd18174176331b7f6581a73da7fb5df0b4975:lib/MyDb.pm
 sub Create_Pollen {
     my $me = shift;
     my $statement = qq"CREATE table pollen (
