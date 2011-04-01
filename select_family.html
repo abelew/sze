@@ -4,19 +4,47 @@
 <input type="hidden" name="family" value="<% $family %>">
 %  my $data;
 %  if ($tc_code) {
-%   my $stmt = qq"SELECT * FROM pollen WHERE tc_code = ?";
+%   my $stmt = qq"SELECT * FROM pollen WHERE tc_code = ? ORDER BY protein_id";
 %   $data = $mydb->MySelect(statement => $stmt, vars => [$tc_code]);
 %  } elsif ($family) {
-%   my $stmt = qq"SELECT * FROM pollen WHERE family = ?";
+%   my $stmt = qq"SELECT * FROM pollen WHERE family = ? ORDER BY protein_id";
 %   $data = $mydb->MySelect(statement => $stmt, vars => [$family]);
 %  }
 
+<center>
+  <img src="images/family/<% $family %>.png">
+%#  <embed id="svg" src="images/family/<% $family %>.svg" align="bottom" width="1000" height="600"></embed>
+</center>
+
 <& table_head.html, table => 'pollen' &>
 
+% my @id_list = ();
+% my $params = $r->param;
+% foreach my $k (keys %{$params}) {
+%   next unless ($k =~ /^id_/);
+%   my ($trash, $id) = split(/_/, $params->{$k});
+%#   print "TESTME: Adding $id<br>\n";
+%   push(@id_list, $id);
+% }
+% my $add_initial_ten = 0;
+% if (scalar(@id_list) == 0) {
+  <p>No entries are clicked!</p>
+%   $add_initial_ten = 1;
+% }
+
+% my $individual_count = 0;
 % foreach my $datum (@{$data}) {
-% my ($id, $accession, $tc_code, $tc_description, $family, $family_number, $protein_description, $aramemnon, $conpred, $cluster, $pollen_pref, $affy, $protein_id, $ms, $bc, $tc, $mp, $dry_pollen, $min_30, $hr_4, $siv) = @{$datum};
+%   $individual_count++;
+%   my ($id, $accession, $tc_code, $tc_description, $family, $family_number, $protein_description, $aramemnon, $conpred, $cluster, $pollen_pref, $affy, $protein_id, $ms, $bc, $tc, $mp, $dry_pollen, $min_30, $hr_4, $siv) = @{$datum};
     <tr>
+%   if ($individual_count < 11) {
+%     if ($add_initial_ten) {
+%        push(@id_list, $id);
+%     }
       <td><div class="check"><INPUT TYPE=CHECKBOX name="id_<% $id %>" id="id_<% $id %>" value="id_<% $id %>" CHECKED onclick="this.form.submit(); return true;"></div></td>
+%   } else {
+      <td><div class="check"><INPUT TYPE=CHECKBOX name="id_<% $id %>" id="id_<% $id %>" value="id_<% $id %>"  onclick="this.form.submit(); return true;"></div></td>
+%   }
       <td align="center"><% $accession %></td>
       <td align="center"><% $tc_code %></td>
       <td align="center"><% $tc_description %></td>
@@ -42,7 +70,53 @@
   </tbody>
 </table>
   </div> 
-<& graph_family.html, ids => $ids, family => $family &>
+% my $width = 600;
+% my $height = 600;
+
+% my $graph = new GD::Graph::linespoints($width, $height);
+% $graph->set(x_label => 'Stage', y_label => 'Expression', y_label_skip => 2, skip_undef => 1,title => 'Family graph', show_values => 0, x_labels_vertical => 0, line_width => 4, marker_size => 6, transparent => 0);
+% $graph->set(markers => [1, 5, 7,]);
+% $graph->set_legend_font("$ENV{MYDB_HOME}/fonts/arial.ttf", 12);
+% $graph->set_x_axis_font("$ENV{MYDB_HOME}/fonts/arial.ttf", 12);
+% $graph->set_x_label_font("$ENV{MYDB_HOME}/fonts/arial.ttf",12);
+% $graph->set_y_axis_font("$ENV{MYDB_HOME}/fonts/arial.ttf", 12);
+% $graph->set_y_label_font("$ENV{MYDB_HOME}/fonts/arial.ttf",12);
+% my @graph_data = ();
+% my $count = 0;
+% $graph_data[0] = ['ms','bc','tc','mp','','dry','30m','4h','siv'];
+% my @legend = ();
+
+% ## Fill the id list with everything if it is null
+% if (scalar(@id_list) == 0) {
+%   for my $c (0 .. $#$data) {
+%    $id_list[$c] = $data->[$c]->[0];
+%   }
+% }
+% ## Only include the ids which are still checked
+% foreach my $i (@id_list) {
+%   foreach my $datum (@{$data}) {
+%     if ($i == $datum->[0]) {
+%       push(@legend, $datum->[12]);
+%       $count++;
+%       my $graph_point = [$datum->[13], $datum->[14], $datum->[15], $datum->[16], undef, $datum->[17], $datum->[18], $datum->[19], $datum->[20]];
+%       $graph_data[$count] = $graph_point;
+%      }
+%   }
+% }
+% my $filename = qq"$ENV{MYDB_HOME}/images/family/${family}.png";
+% if (-r $filename) {
+%   unlink($filename);
+% }
+% $graph->set_legend(@legend);
+% my $image = $graph->plot(\@graph_data) or callstack(), print($graph->error);
+% my $source = $graph->gd();
+% if (defined($image)) {
+%   open(IMG, ">$filename");
+%   print IMG $image->png;
+%   close IMG;
+% }
+
+
 
 % } else {
 
@@ -53,7 +127,6 @@
   <option value="<% $family->[0] %>"><% $family->[0] %></option>
 % }
 </select>
-<input type="submit" name="Family Submit" value="Family Submit">
 <p>
 <select name="tc_code">
 % my $tc_code = $mydb->MySelect(statement => qq"SELECT distinct(tc_code) FROM pollen ORDER BY tc_code");
@@ -61,9 +134,6 @@
   <option value="<% $tc->[0] %>"><% $tc->[0] %></option>
 % }
 </select>
-<input type="submit" name="Family Submit" value="Family Submit">
-
-
 </form>
 
 % }

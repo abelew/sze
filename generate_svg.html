@@ -19,7 +19,7 @@ my $svg_graph = new SVG::TT::Graph::Line({
   key_position => 'right',
   tidy => 1,  
 });
-$svg_graph->compress(0);
+#$svg_graph->compress(0);
 $svg_graph->style_sheet("/graph.css");
 
 ## Fill the id list with everything if it is null
@@ -38,6 +38,7 @@ foreach my $i (@{$id_list}) {
     }
   } 
 }
+print "TESTME: $filename<br>\n";
 open(OUT, ">$filename");
 print OUT $svg_graph->burn();
 close OUT;
