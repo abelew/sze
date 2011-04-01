@@ -1,0 +1,71 @@
+% if ($accessions) {
+% my @accessions_list = split(/\W+/, $accessions);
+% my @points;
+% my @id_list;
+% my @graph_columns = ('ms','bc','tc','mp','','dry','30m','4h','siv');
+% foreach my $acc (@accessions_list) {
+%   my $stmt = qq"SELECT * FROM $table WHERE accession = ?";
+%   my $t = $mydb->MySelect(type => 'list_of_hashes', statement => $stmt, vars => [$acc]);
+%   my $id = $t->[0]->{id};
+%   push(@id_list, $id);
+%   push(@points, $t->[0]);
+% }
+% my $width = 600;
+% my $height = 600;
+%# my $params = $r->param;
+%# foreach my $k (keys %{$params}) {
+%#   next unless ($k =~ /^id_/);
+%#   my ($trash, $id) = split(/_/, $params->{$k});
+%#    push(@id_list, $id);
+%# }
+
+<& generate_gd.html, width => $width, height => $height, points => \@points, id_list => \@id_list, family => $accessions_list[0], graph_columns => \@graph_columns &>
+
+%# <& generate_svg.html, width => $width, height => $height, points => $points, id_list => \@id_list, family => $family &>
+<center>
+<img src="images/family/<% $accessions_list[0] %>.png">
+
+%#  <embed id="svg" src="images/family/<% $family %>.svg" align="bottom" width="1000" height="600"></embed>
+</center>
+
+<& table_head_genome.html, table => 'genome' &>
+
+% my $individual_count = 0;
+% foreach my $datum (@points) {
+%   $individual_count++;
+    <tr>
+      <td align="center"><% $datum->{affy_id} %></td>
+      <td align="center"><% $datum->{accession} %></td>
+      <td align="center"><% $datum->{tc_code} %></td>
+      <td align="center"><% $datum->{description} %></td>
+      <td align="center"><% $datum->{family} %></td>
+      <td align="center"><% $datum->{cluster} %></td>
+      <td align="center"><% $datum->{pollen_pref} %></td>
+      <td align="center"><% $datum->{protein_id} %></td>
+      <td align="center"><% $datum->{ms} %></td>
+      <td align="center"><% $datum->{bc} %></td>
+      <td align="center"><% $datum->{tc} %></td>
+      <td align="center"><% $datum->{mp} %></td>
+      <td align="center"><% $datum->{dry} %></td>
+      <td align="center"><% $datum->{"30m"} %></td>
+      <td align="center"><% $datum->{"4h"} %></td>
+      <td align="center"><% $datum->{siv} %></td>
+      <td align="center"><% $datum->{description_qin} %></td>
+    </tr>
+%   }
+  </tbody>
+</table>
+  </div> 
+
+
+% } else {
+%## No family given
+<p>No family provided!</p>
+% }
+<%init>
+</%init>
+<%args>
+  $accessions => undef
+  $ids => undef
+  $table => "genome"
+</%args>

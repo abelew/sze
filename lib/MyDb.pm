@@ -14,7 +14,7 @@ require Exporter;
 use Error qw(:try);
 use vars qw($VERSION);
 our @ISA = qw(Exporter);
-our @EXPORT = qw(Out Error AddOpen RemoveFile callstack);    # Symbols to be exported by default
+our @EXPORT = qw(Out Error AddOpen RemoveFile Callstack);    # Symbols to be exported by default
 our $AUTOLOAD;
 
 $VERSION = '20091101';
@@ -54,10 +54,13 @@ sub new {
     $me->{database_timeout} = 5 if (!defined($me->{database_timeout}));
     $me->{database_type} = 'mysql' if (!defined($me->{database_type}));
     $me->{database_user} = 'guest' if (!defined($me->{database_user}));
+    $me->{graph_height} = 600 if (!defined($me->{graph_height}));
+    $me->{graph_width} = 600 if (!defined($me->{graph_width}));
     $me->{log} = 'sze.log' if (!defined($me->{log}));
     $me->{log_error} = 'sze.errors' if (!defined($me->{log_error}));
     $me->{sql_accession} = 'varchar(40) NOT NULL' if (!defined($me->{sql_accession}));
     $me->{sql_timestamp} = 'TIMESTAMP ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP' if (!defined($me->{sql_timestamp}));
+    $me->{sql_comment} = 'text' if (!defined($me->{sql_comment}));
     $me->{sql_id} = 'serial' if (!defined($me->{sql_id}));
     my ($open, %data, $config_option);
     if (-r $me->{config_file}) {
@@ -80,6 +83,7 @@ sub new {
     }
     %conf_specification_temp = (
 	'makeblast' => \$conf{makeblast},
+	'import_genome' => \$conf{import_genome},
 	'import_pollen' => \$conf{import_pollen},
 	'shell' => \$conf{shell},
 	);
@@ -108,6 +112,30 @@ sub new {
 	exit(0);
     }
     return ($me);
+}
+
+sub Callstack {
+    my %args = @_;
+    $log->warn("$args{message}") if ($args{message});
+    my ($path, $line, $subr);
+    my $max_depth = 30;
+    my $i = 1;
+    if ($log->is_warn()) {
+	$log->warn("--- Begin stack trace ---");
+	while ((my @call_details = (caller($i++))) && ($i<$max_depth)) {
+	    $log->warn("$call_details[1] line $call_details[2] in function $call_details[3]");
+	}
+	if (defined($!)) {
+	    $log->warn("STDERR: $!");
+	}
+	$log->warn("--- End stack trace ---");
+    }
+    if ($args{die}) {
+	my $die_message = qq"";
+	$die_message .= "$args{message}" if (defined($args{message}));
+	$die_message .= ": $!" if (defined($!));
+	die($die_message);
+    }
 }
 
 sub MySession {
@@ -269,10 +297,9 @@ sub MyExecute {
     my %args = ();
     my $input;
     my $input_type = ref($_[0]);
-    my ($statement, $vars, $caller);
+    my ($statement, $vars);
     if ($input_type eq 'HASH') {
         $input = $_[0];
-	$caller = $input->{caller};
 	$vars = $input->{vars};
 	$statement = $input->{statement};
     } elsif (!defined($_[1])) {
@@ -281,10 +308,12 @@ sub MyExecute {
 	%args = @_;
 	$statement = $args{statement};
 	$vars = $args{vars};
-	$caller = $args{caller};
         $input = \%args;
     }
 
+#    my $dbh_num = $me->MyConnect($statement);
+#    my $dbh = $me->{handles}->[$dbh_num];
+#    my $sth = $dbh->prepare($statement);
     my $mydbh = $me->MyConnect($statement);
     my $sth = $mydbh->prepare($statement);
     my $rv;
@@ -293,23 +322,19 @@ sub MyExecute {
 	@vars = @{$input->{vars}};
     }
     if (scalar(@vars) > 0) {
-	$rv = $sth->execute(@{$input->{vars}}) or callstack();
+	$rv = $sth->execute(@{$input->{vars}}) or Callstack();
     } else {
-	$rv = $sth->execute() or callstack();
+	$rv = $sth->execute() or Callstack();
     }
     
     my $rows = 0;
     if (!defined($rv)) {
 	my ($sec,$min,$hour,$mday,$mon,$year, $wday,$yday,$isdst) = localtime time;
-	print STDERR "$hour:$min:$sec $mon-$mday Execute failed for: $statement
-from: $input->{caller}
-with: error $DBI::errstr\n";
+	Callstack(message => "$hour:$min:$sec $mon-$mday Execute failed for: $statement
+with: error $DBI::errstr\n");
 	print STDERR "Host: $me->{database_host} Db: $me->{database_name}\n" if (defined($me->{debug}) and $me->{debug} > 0);
 	$me->{errors}->{statement} = $statement;
 	$me->{errors}->{errstr} = $DBI::errstr;
-	if (defined($input->{caller})) {
-	    $me->{errors}->{caller} = $input->{caller};
-	}
 	return(undef);
     } else {
 	$rows = $mydbh->rows();
@@ -384,6 +409,7 @@ sub MyConnect {
     my $host = sub {
 	my $value = shift;
 	my $range = scalar(@hosts);
+	$range = 1 if ($range == 0);
 	my $index = $value % $range;
 	return($hosts[$index]);
     };
@@ -408,13 +434,13 @@ sub MyConnect {
 	    $user = $me->{database_user};
 	    $pass = $me->{database_pass};
 	}
-	$mydbh = DBI->connect_cached($dbd, $user, $pass, $me->{database_args},) or callstack();
+	$mydbh = DBI->connect_cached($dbd, $user, $pass, $me->{database_args},) or Callstack();
 	alarm(0);
     }; #original signal handler restored here when $h goes out of scope
     alarm(0);
     if (!defined($mydbh) or
 	(defined($DBI::errstr) and
-	 $DBI::errstr =~ m/(?:lost connection|Server shutdown|Can't connect|Unknown MySQL server host|mysql server has gone away)/ix)) {  ##'
+	 $DBI::errstr =~ m/(?:lost connection|Server shutdown|Can\'t connect|Unknown MySQL server host|mysql server has gone away)/ix)) {  ##'
 	my $success = 0;
 	while ($me->{database_retries} < $me->{num_retries} and $success == 0) {
 	    $me->{database_retries}++;
@@ -424,9 +450,9 @@ sub MyConnect {
 	    eval {
 		my $h = set_sig_handler( 'ALRM' ,sub { return("timeout") ; } );
 		alarm($me->{database_timeout});  ## The timeout in seconds
-		$mydbh = DBI->connect_cached($dbd, $me->{database_user}, $me->{database_pass}, $me->{database_args},) or callstack();
+		$mydbh = DBI->connect_cached($dbd, $me->{database_user}, $me->{database_pass}, $me->{database_args},) or Callstack();
 		alarm(0);
-	    }; #original signal handler restored here when $h goes out of scope
+ 	    }; #original signal handler restored here when $h goes out of scope
 	    alarm(0);
 	    if (defined($mydbh) and
 		(!defined($mydbh->errstr) or $mydbh->errstr eq '')) {
@@ -434,17 +460,22 @@ sub MyConnect {
 	    }
 	} ## End of while
     }
-
+    
     if (!defined($mydbh)) {
 	$me->{errors}->{statement} = $statement, Write_SQL($statement) if (defined($statement));
 	$me->{errors}->{errstr} = $DBI::errstr;
 	my ($sec,$min,$hour,$mday,$mon,$year, $wday,$yday,$isdst) = localtime time;
 	my $error = qq"$hour:$min:$sec $mon-$mday Could not open cached connection: dbi:$me->{database_type}:database=$me->{database_name};host=$me->{database_host}, $DBI::err. $DBI::errstr";
-	die($error);
+	Callstack(die => 1, message => $error);
     }
     $mydbh->{mysql_auto_reconnect} = 1;
     $mydbh->{InactiveDestroy} = 1;
-    return ($mydbh);
+    return($mydbh);
+#    my $hands = $me->{handles};
+#    my $num_handles = $#$hands;
+#    my $new_handle = $num_handles + 1;
+#    $me->{handles}->[$new_handle] = $dbh;
+#    return($new_handle);
 }
 
 sub MakeTempfile {
@@ -576,9 +607,77 @@ sub Tablep {
 ### Functions used to create tables
 #################################################
 
+
+
+sub Create_Genome {
+    my $me = shift;
+    my $statement = qq"CREATE table genome (
+id $me->{sql_id},
+affy_id varchar(16),
+accession $me->{sql_accession},
+c_code varchar(20),
+description $me->{sql_comment},
+family $me->{sql_comment},
+family_no $me->{sql_comment},
+description_honys $me->{sql_comment},
+description_qin $me->{sql_comment},
+aramemnon_con int(3),
+conpred_con int(3),
+cluster int(3),
+pollen_pref varchar(10),
+protein_qin varchar(50),
+ms float,
+bc float,
+tc float,
+mp float,
+empty int,
+dry_pol float,
+05_pt float,
+4h_pt float,
+siv_pt float,
+avg_rt_7d float,
+avg_rt_17d float,
+avg_seed_8d float,
+avg_seed_21d float,
+avg_rosette_17 float,
+avg_ovary float,
+avg_stigma float,
+pol_spec varchar(20),
+maxp float,
+maxs float,
+maxps float,
+FULLTEXT(description),
+index(accession),
+PRIMARY KEY (id))";
+    print "TESTME: $statement\n";
+    $me->MyExecute(statement => $statement,);
+}
+
+sub Create_Annotation {
+    my $me = shift;
+    my $statement = qq"CREATE table annotation (
+id $me->{sql_id},
+category varchar(20),
+tc_code varchar(10),
+family_name varchar(40),
+family_abbrev varchar(10),
+family_num varchar(10),
+prot_descr_tair text,
+prot_descr_honys text,
+prot_descr_qin text,
+tm int(2),
+pollen_specific varchar(10),
+affy_id_qin varchar(20),
+agi_num_qin varchar(12),
+protein_id varchar(30)
+INDEX(affy_id_qin),
+PRIMARY KEY(id))";
+    $me->MyExecute(statement =>$statement,);
+}
+
 sub Create_Pollen {
     my $me = shift;
-    my $statement = qq/CREATE table pollen (
+    my $statement = qq"CREATE table pollen (
 id $me->{sql_id},
 accession $me->{sql_accession},
 tc_code varchar(10),
@@ -602,9 +701,8 @@ dry_pol float,
 siv_pt float,
 lastupdate $me->{sql_timestamp},
 INDEX(accession),
-PRIMARY KEY (id))/;
-    my ($cp, $cf, $cl) = caller();
-    $me->MyExecute(statement =>$statement, caller => "$cp, $cf, $cl",);
+PRIMARY KEY (id))";
+    $me->MyExecute(statement =>$statement,);
 }
 
 ## Some code for testing dependencies

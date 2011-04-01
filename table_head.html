@@ -1,6 +1,6 @@
 <script type="text/javascript" src="/js/jquery.js"></script>
 <script type="text/javascript" src="/js/jquery.tablesorter.js"></script>
-<script type="text/javascript" src="/js/jquery.tablesorter.pager.js"></script>
+%#<script type="text/javascript" src="/js/jquery.tablesorter.pager.js"></script>
 <script type="text/javascript" id="st">
 function getStorage(key_prefix) {
     // this function will return us an object with a "set" and "get" method
@@ -50,7 +50,7 @@ jQuery(function($) {
 
    $("#<% $table %>")
    .tablesorter({widthFixed: true, widgets: ['zebra'],})
-   .tablesorterPager({container: $("#pager")});
+%#   .tablesorterPager({container: $("#pager")});
    $("#<% $table %>").bind("sortStart",function() {
        $("#overlay").show();
    }).bind("sortEnd",function() {
@@ -91,38 +91,40 @@ jQuery(function($) {
 </div>
 <div id="main">
  <!--- <div id="pager" class="pager">   --->
-  <div id="pager">
-	<form> 
-		<img src="/images/first.png" class="first"/> 
-		<img src="/images/prev.png" class="prev"/> 
-		<input type="text" class="pagedisplay"/> 
-		<img src="/images/next.png" class="next"/> 
-		<img src="/images/last.png" class="last"/> 
-		<select class="pagesize"> 
-			<option selected="selected" value="10">10</option> 
-			<option value="20">20</option> 
-			<option value="50">50</option> 
-			<option value="100">100</option> 
-		</select> 
-	</form> 
+%#  <div id="pager">
+%#	<form> 
+%#		<img src="/images/first.png" class="first"/> 
+%#		<img src="/images/prev.png" class="prev"/> 
+%#		<input type="text" class="pagedisplay"/> 
+%#		<img src="/images/next.png" class="next"/> 
+%#		<img src="/images/last.png" class="last"/> 
+%#		<select class="pagesize"> 
+%#			<option selected="selected" value="10">10</option> 
+%#			<option value="20">20</option> 
+%#			<option value="50">50</option> 
+%#			<option value="100">100</option> 
+%#		</select> 
+%#	</form> 
   </div> 
   <div id="data">
 
 <table cellpadding="0" cellspacing="0" border="0" id="<% $table %>" class="tablesorter">
   <thead>
     <tr>
-      <th><h3>Include</h3></th>
+% if ($show_id) {
+      <th><h3>Add</h3></th>
+% }
       <th><h3>Accession</h3></th>
       <th><h3>TC code</h3></th>
       <th><h3>TC description</h3></th>
       <th><h3>Family</h3></th>
       <th><h3>Family number</h3></th>
       <th><h3>Protein Description</h3></th>
-      <th><h3>Aramemnon</h3></th>
-      <th><h3>Conpred</h3></th>
-      <th><h3>Cluster</h3></th>
-      <th><h3>Pollen Pref</h3></th>
-      <th><h3>Affymetrix ID</h3></th>
+      <th><h3>Aram memnon</h3></th>
+      <th><h3>Con pred</h3></th>
+      <th><h3>Clust</h3></th>
+      <th><h3>Pol Pref</h3></th>
+      <th><h3>Affy ID</h3></th>
       <th><h3>Protein ID</h3></th>
       <th><h3>MS</h3></th>
       <th><h3>BC</h3></th>
@@ -139,5 +141,6 @@ jQuery(function($) {
 <%init>
 </%init>
 <%args>
+  $show_id => 1
   $table => 'pollen'
 </%args>

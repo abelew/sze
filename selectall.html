@@ -1,9 +1,10 @@
-<& table_head.html, table => 'pollen' &>
-% my $data = $mydb->MySelect(statement => "SELECT * FROM pollen",);
+<& table_head.html, table => $table &>
+% my $data = $mydb->MySelect(statement => "SELECT * FROM $table",);
 % foreach my $datum (@{$data}) {
 % my ($id, $accession, $tc_code, $tc_description, $family, $family_number, $protein_description, $aramemnon, $conpred, $cluster, $pollen_pref, $affy, $protein_id, $ms, $bc, $tc, $mp, $dry_pollen, $min_30, $hr_4, $siv) = @{$datum};
     <tr>
-      <td><% $accession %></td>
+      <td>&nbsp;</td>
+      <td><a href="go_test.html?genename=$accession"><% $accession %></a></td>
       <td><% $tc_code %></td>
       <td><% $tc_description %></td>
       <td><% $family %></td>
@@ -28,3 +29,7 @@
   </tbody>
 </table>
   </div> 
+
+<%args>
+   $table => "pollen"
+</%args>

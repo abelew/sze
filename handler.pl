@@ -9,7 +9,6 @@ use lib qq"$ENV{MYDB_HOME}/lib";
 use MyDb qw/ AddOpen RemoveFile /;
 use MyGraph;
 use SeqMisc;
-use HTMLMisc;
 BEGIN {
     if (!defined($ENV{MYDB_HOME})) {
 	die("MYDB_HOME is not set.  Either set it in your apache env vars or shell profile.");

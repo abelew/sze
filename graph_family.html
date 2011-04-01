@@ -1,5 +1,5 @@
-% if ($family) {
-% my $stmt = qq"SELECT * FROM pollen WHERE family = ?";
+% if ($accessions) {
+% my $stmt = qq"SELECT * FROM pollen WHERE accession = ?";
 % my $points = $mydb->MySelect(statement => $stmt, vars => [$family]);
 % my $width = 600;
 % my $height = 600;
@@ -8,14 +8,15 @@
 % foreach my $k (keys %{$params}) {
 %   next unless ($k =~ /^id_/);
 %   my ($trash, $id) = split(/_/, $params->{$k});
-% #  print "TESTME: Adding $id<br>\n";
+%#   print "TESTME: Adding $id<br>\n";
 %   push(@id_list, $id);
 % }
 
-<& generate_gd.html, width => $width, height => $height, points => $points, id_list => \@id_list, family => $family &>
+ <& generate_gd.html, width => $width, height => $height, points => $points, id_list => \@id_list, family => $family &>
 <& generate_svg.html, width => $width, height => $height, points => $points, id_list => \@id_list, family => $family &>
 <center>
-  <img src="images/family/<% $family %>.png"><embed id="svg" src="images/family/<% $family %>.svg" align="bottom" width="1000" height="600"></embed>
+  <img src="images/family/<% $family %>.png">
+  <embed id="svg" src="images/family/<% $family %>.svg" align="bottom" width="1000" height="600"></embed>
 </center>
 
 % } else {
@@ -25,6 +26,6 @@
 <%init>
 </%init>
 <%args>
-  $family => undef
+  $accessions => undef
   $ids => undef
 </%args>

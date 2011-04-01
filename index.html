@@ -1,12 +1,35 @@
 <center>
   <b>Welcome!</b>
 </center>
-<p>Lets see if I can select everything from the table...</p>
-<a href="selectall.html">Select All</a>
-<p>How about pulling individual families of proteins...</p>
+<p>Select the entire transport table:</p>
+<a href="selectall.html?table=pollen">Select All</a>
+<p>Select an individual family from the transport table.</p>
 <a href="select_family.html">Select Family</a>
-<p>Will searches work?</p>
+<p>Perform a search.</p>
 <a href="search.html">Search</a>
+<br>
+Graph these accessions from the transport table.<br>
+
+<form method="post" action="graph_accessions.html?table=pollen" enctype="multipart/form-data">
+<textarea name="accessions" rows="12" cols="100">
+AT1G80510
+AT2g40420
+AT3g30390
+</textarea>
+<input type="submit" name="pollen_submit">
+</form>
+
+<br><br>
+<a href="selectall.html?table=genome">Select All</a>
+Graph these accessions from the full transcriptome:<br>
+<form method="post" action="graph_accessions_genome.html?table=genome" enctype="multipart/form-data">
+<textarea name="accessions" rows="12" cols="100">
+AT5G07430
+AT5G39880
+</textarea>
+<input type="submit" name="genome_submit">
+</form>
+
 
 <%init>
    my $component_count = "first";
