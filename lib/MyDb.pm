@@ -653,8 +653,6 @@ PRIMARY KEY (id))";
     $me->MyExecute(statement => $statement,);
 }
 
-<<<<<<< HEAD:lib/MyDb.pm
-=======
 sub Create_Annotation {
     my $me = shift;
     my $statement = qq"CREATE table annotation (
@@ -677,7 +675,6 @@ PRIMARY KEY(id))";
     $me->MyExecute(statement =>$statement,);
 }
 
->>>>>>> e9afd18174176331b7f6581a73da7fb5df0b4975:lib/MyDb.pm
 sub Create_Pollen {
     my $me = shift;
     my $statement = qq"CREATE table pollen (
