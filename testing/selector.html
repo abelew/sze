@@ -1,0 +1,21 @@
+% if ($submit) {
+  <select name="<% $name %>" onchange="this.form.submit(); return true;">
+% } else {
+  <select name="<% $name %>">
+% }
+% my $data = $mydb->MySelect($statement);
+  <option value=""></option>
+% foreach my $datum (@{$data}) {
+  <option value="<% $datum->[0] %>"><% $datum->[0] %></option>
+% }
+</select>
+
+
+<%init>
+</%init>
+
+<%args>
+  $submit => 1
+  $name => undef
+  $statement => undef
+</%args>

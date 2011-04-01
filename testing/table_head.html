@@ -1,0 +1,105 @@
+<script type="text/javascript" src="/js/jquery.js"></script>
+<script type="text/javascript" src="/js/jquery.tablesorter.js"></script>
+%#<script type="text/javascript" src="/js/jquery.tablesorter.pager.js"></script>
+<script type="text/javascript" id="st">
+function getStorage(key_prefix) {
+    // this function will return us an object with a "set" and "get" method
+    // using either localStorage if available, or defaulting to document.cookie
+    if (window.localStorage) {
+        // use localStorage:
+        return {
+            set: function(id, data) {
+                localStorage.setItem(key_prefix+id, data);
+            },
+            get: function(id) {
+                return localStorage.getItem(key_prefix+id);
+            }
+        };
+    } else {
+        // use document.cookie:
+        return {
+            set: function(id, data) {
+                document.cookie = key_prefix+id+'='+encodeURIComponent(data);
+            },
+            get: function(id, data) {
+                var cookies = document.cookie, parsed = {};
+                cookies.replace(/([^=]+)=([^;]*);?\s*/g, function(whole, key, value) {
+                    parsed[key] = unescape(value);
+                });
+                return parsed[key_prefix+id];
+            }
+        };
+    }
+}
+
+jQuery(function($) {
+    // a key must is used for the cookie/storage
+    var storedData = getStorage('com_mysite_checkboxes_'); 
+    
+    $('div.check input:checkbox').bind('change',function(){
+        $('#'+this.id+'txt').toggle($(this).is(':checked'));
+        // save the data on change
+        storedData.set(this.id, $(this).is(':checked')?'checked':'not');
+    }).each(function() {
+        // on load, set the value to what we read from storage:
+        var val = storedData.get(this.id);
+        if (val == 'checked') $(this).attr('checked', 'checked');
+        if (val == 'not') $(this).removeAttr('checked');
+        if (val) $(this).trigger('change');
+    });
+
+   $("#<% $table %>")
+   .tablesorter({widthFixed: true, widgets: ['zebra'],})
+%#   .tablesorterPager({container: $("#pager")});
+   $("#<% $table %>").bind("sortStart",function() {
+       $("#overlay").show();
+   }).bind("sortEnd",function() {
+       $("#overlay").hide();
+   });
+
+    
+});
+
+</script>
+<style>
+#overlay {
+	top: 100px;
+	left: 50%;
+	position: absolute;
+	margin-left: -100px;
+	width: 200px;
+	text-align: center;
+	display: none;
+	margin-top: -10px;
+	background: #000;
+	color: #FFF;
+}
+</style>
+<div id="overlay">
+  Please wait...
+</div>
+<div id="main">
+ <!--- <div id="pager" class="pager">   --->
+  </div> 
+  <div id="data">
+
+<table cellpadding="0" cellspacing="0" border="0" id="<% $table %>" class="tablesorter">
+  <thead>
+    <tr>
+% if ($show_id) {
+      <th><h3>Add</h3></th>
+% }
+% foreach my $col (@{$columns}) {
+   <th><h3><% $col->[1] %></h3></th>
+% }
+    </tr>
+  </thead>
+  <tbody>
+
+<%init>
+</%init>
+<%args>
+  $table => 'pollen'
+  $show_id => undef
+  $columns => undef
+</%args>

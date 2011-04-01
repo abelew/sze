@@ -1,0 +1,139 @@
+<script type="text/javascript" src="/js/jquery.js"></script>
+<script type="text/javascript" src="/js/jquery.tablesorter.js"></script>
+%#<script type="text/javascript" src="/js/jquery.tablesorter.pager.js"></script>
+<script type="text/javascript" id="st">
+function getStorage(key_prefix) {
+    // this function will return us an object with a "set" and "get" method
+    // using either localStorage if available, or defaulting to document.cookie
+    if (window.localStorage) {
+        // use localStorage:
+        return {
+            set: function(id, data) {
+                localStorage.setItem(key_prefix+id, data);
+            },
+            get: function(id) {
+                return localStorage.getItem(key_prefix+id);
+            }
+        };
+    } else {
+        // use document.cookie:
+        return {
+            set: function(id, data) {
+                document.cookie = key_prefix+id+'='+encodeURIComponent(data);
+            },
+            get: function(id, data) {
+                var cookies = document.cookie, parsed = {};
+                cookies.replace(/([^=]+)=([^;]*);?\s*/g, function(whole, key, value) {
+                    parsed[key] = unescape(value);
+                });
+                return parsed[key_prefix+id];
+            }
+        };
+    }
+}
+
+jQuery(function($) {
+    // a key must is used for the cookie/storage
+    var storedData = getStorage('com_mysite_checkboxes_'); 
+    
+    $('div.check input:checkbox').bind('change',function(){
+        $('#'+this.id+'txt').toggle($(this).is(':checked'));
+        // save the data on change
+        storedData.set(this.id, $(this).is(':checked')?'checked':'not');
+    }).each(function() {
+        // on load, set the value to what we read from storage:
+        var val = storedData.get(this.id);
+        if (val == 'checked') $(this).attr('checked', 'checked');
+        if (val == 'not') $(this).removeAttr('checked');
+        if (val) $(this).trigger('change');
+    });
+
+   $("#<% $table %>")
+   .tablesorter({widthFixed: true, widgets: ['zebra'],})
+%#   .tablesorterPager({container: $("#pager")});
+   $("#<% $table %>").bind("sortStart",function() {
+       $("#overlay").show();
+   }).bind("sortEnd",function() {
+       $("#overlay").hide();
+   });
+
+    
+});
+
+
+%#$(document).ready(function()
+%# {
+%#  $("#<% $table %>")
+%#  .tablesorter({widthFixed: true, widgets: ['zebra'],})
+%#  .tablesorterPager({container: $("#pager")});
+%#  $("#<% $table %>").bind("sortStart",function() { 
+%#      $("#overlay").show(); 
+%#  }).bind("sortEnd",function() { 
+%#      $("#overlay").hide(); 
+%#  });
+</script>
+<style>
+#overlay {
+	top: 100px;
+	left: 50%;
+	position: absolute;
+	margin-left: -100px;
+	width: 200px;
+	text-align: center;
+	display: none;
+	margin-top: -10px;
+	background: #000;
+	color: #FFF;
+}
+</style>
+<div id="overlay">
+  Please wait...
+</div>
+<div id="main">
+ <!--- <div id="pager" class="pager">   --->
+%#  <div id="pager">
+%#	<form> 
+%#		<img src="/images/first.png" class="first"/> 
+%#		<img src="/images/prev.png" class="prev"/> 
+%#		<input type="text" class="pagedisplay"/> 
+%#		<img src="/images/next.png" class="next"/> 
+%#		<img src="/images/last.png" class="last"/> 
+%#		<select class="pagesize"> 
+%#			<option selected="selected" value="10">10</option> 
+%#			<option value="20">20</option> 
+%#			<option value="50">50</option> 
+%#			<option value="100">100</option> 
+%#		</select> 
+%#	</form> 
+  </div> 
+  <div id="data">
+
+<table cellpadding="0" cellspacing="0" border="0" id="<% $table %>" class="tablesorter">
+  <thead>
+    <tr>
+      <th><h3>Affy ID</h3></th>
+      <th><h3>AGI</h3></th>
+      <th><h3>TC code</h3></th>
+      <th><h3>Description</h3></th>
+      <th><h3>Family</h3></th>
+      <th><h3>Cluster</h3></th>
+      <th><h3>Pollen Pref</h3></th>
+      <th><h3>Protein ID</h3></th>
+      <th><h3>MS</h3></th>
+      <th><h3>BC</h3></th>
+      <th><h3>TC</h3></th>
+      <th><h3>MP</h3></th>
+      <th><h3>Dry</h3></th>
+      <th><h3>30m</h3></th>
+      <th><h3>4h</h3></th>
+      <th><h3>SIV</h3></th>
+      <th><h3>Description Qin</h3></th>
+    </tr>
+  </thead>
+  <tbody>
+
+<%init>
+</%init>
+<%args>
+  $table => 'pollen'
+</%args>

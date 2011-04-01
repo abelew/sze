@@ -1,0 +1,44 @@
+<form action="responder.html" enctype="multipart/form-data" method="POST">
+<p>
+  The following links may be used to visualize microarray data <br>
+  for <i>Arabidopsis thaliana</i>.
+</p>
+<p> 
+  One may view all of the data from a particular table.
+</p>
+<& selector.html, name => 'selectall_table', statement => qq"SHOW TABLES" &>
+<p>
+  The pollen dataset has been partially annotated.  Thus it <br>
+  is possible to view expression data for a particular gene family.
+</p>
+
+<& selector.html, name => 'family', statement => qq"SELECT distinct(family) FROM pollen ORDER BY family" &>
+<p>
+  The pollen dataset also has a defined set of tc codes.<br>
+  These data may be graphed below.
+</p>
+<& selector.html, name => 'tc_code', statement => qq"SELECT distinct(tc_code) FROM pollen ORDER BY tc_code" &>
+<p>
+  Placing <i>Arabidopsis</i> gene accessions in the following text-area<br>
+  will graph the data from them specifically.  Conversely, fill in some<br>
+  keywords into the textbox and every accession with a corresponding<br>
+  annotation will be graphed.<br>
+  First choose a table to query.<br>
+</p>
+<& selector.html, submit => undef, name => 'search_table', statement => qq"SHOW TABLES" &><br>
+<input type="text" name="search" size="30"><br>
+<textarea name="accessions" rows="12" cols="100">
+AT5G07430
+AT5G39880
+</textarea><br>
+<input type="submit" name="accession_submit"><br>
+</form>
+
+<%init>
+</%init>
+
+<%args>
+</%args>
+
+<%cleanup>
+</%cleanup>

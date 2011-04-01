@@ -1,0 +1,25 @@
+<%perl>
+if ($selectall_table) {
+    $m->comp('select_table.html', table => $selectall_table);
+} elsif ($family) {
+    $m->comp('graph_family.html', family => $family);
+} elsif ($tc_code) {
+    $m->comp('graph_family.html', tc_code => $tc_code);
+} elsif ($search) {
+    $m->comp('search_table.html', search => $search);
+} elsif ($accessions) {
+    $m->comp('graph_accessions.html', accessions => $accessions, search_table => $search_table);
+} else {
+    $m->comp('index.html');
+}
+</%perl>
+
+
+<%args>
+  $selectall_table => undef
+  $family => undef
+  $tc_code => undef
+  $search => undef
+  $accessions => undef
+  $search_table => 'pollen'
+</%args>

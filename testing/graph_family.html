@@ -1,0 +1,77 @@
+<FORM action="graph_family.html" enctype="multipart/form-data" method="POST">
+
+% if ($tc_code or $family) {
+<input type="hidden" name="family" value="<% $family %>">
+%  my $data;
+%  if ($tc_code) {
+%   my $stmt = qq"SELECT * FROM pollen WHERE tc_code = ? ORDER BY protein_id";
+%   $data = $mydb->MySelect(type => 'list_of_hashes', statement => $stmt, vars => [$tc_code]);
+%  } elsif ($family) {
+%   my $stmt = qq"SELECT * FROM pollen WHERE family = ? ORDER BY protein_id";
+%   $data = $mydb->MySelect(type => 'list_of_hashes', statement => $stmt, vars => [$family]);
+%  }
+% my $schema = $mydb->MySelect("SHOW COLUMNS FROM pollen");
+
+<& table_head.html, table => 'pollen' &>
+
+%## Fill a list of IDs from the HTML form
+% my @id_list = ();
+% my $params = $r->param;
+% foreach my $k (keys %{$params}) {
+%   next unless ($k =~ /^id_/);
+%   my ($trash, $html_id) = split(/_/, $params->{$k});
+%   push(@id_list, $html_id);
+% }
+% my $add_initial_ten = 0;
+% if (scalar(@id_list) == 0) {
+%   $add_initial_ten = 1;
+% }
+
+<center>
+  <img src="/images/family/<% $family %>.png">
+%#  <embed id="svg" src="images/family/<% $family %>.svg" align="bottom" width="1000" height="600"></embed>
+</center>
+
+
+% my $individual_count = 0;
+% foreach my $datum (@{$data}) {
+%   my $id = $datum->{id};
+%   $individual_count++;
+    <tr>
+%   if ($individual_count < 11) {
+%     if ($add_initial_ten) {
+%        push(@id_list, $id);
+%     }
+      <td><div class="check"><INPUT TYPE=CHECKBOX name="id_<% $id %>" id="id_<% $id %>" value="id_<% $id %>" CHECKED onclick="this.form.submit(); return true;"></div></td>
+%   } else {
+      <td><div class="check"><INPUT TYPE=CHECKBOX name="id_<% $id %>" id="id_<% $id %>" value="id_<% $id %>"  onclick="this.form.submit(); return true;"></div></td>
+%   }
+
+%   my @skip_list = ('id','lastupdate');
+%   SCHEMA: foreach my $schemum (@{$schema}) {
+%     foreach my $skip (@skip_list) {
+%        next SCHEMA if ($schemum->[0] eq $skip);
+%     }    
+  <td align="center"><% $datum->{$schemum->[0]} %></td>
+%   }
+    </tr>
+%   }  ## End foreach entry from datum
+  </tbody>
+</table>
+  </div> 
+  
+ <& generate_gd.html, data => $data, id_list => \@id_list, family => $family, output_filename => "$family.png" &>
+
+% }
+
+</form>
+
+<%init>
+</%init>
+<%args>
+  $accessions => undef
+  $ids => undef
+  $family => undef
+  $tc_code => undef
+  $data => undef
+</%args>

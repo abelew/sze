@@ -1,0 +1,76 @@
+<FORM action="graph_accessions.html" enctype="multipart/form-data" method="POST">
+
+<%perl>
+my @accessions_list = split(/\W+/, $accessions);
+my @points;
+my @id_list;
+my @data;
+foreach my $acc (@accessions_list) {
+  my $affy_stmt = qq"SELECT * FROM $search_table WHERE affy_id = ?";
+  my $accession_stmt = qq"SELECT * FROM $search_table WHERE accession = ?";
+  my $stmt;
+  if ($acc =~ /^AT\dG/) {
+    $stmt = $accession_stmt;
+  } else {
+    $stmt = $affy_stmt;
+  }
+  my $datum = $mydb->MySelect(statement => $stmt, vars => [$acc], type => 'list_of_hashes');
+  my $id = $datum->[0]->{id};
+  push(@id_list, $id);
+  push(@data, $datum->[0]);
+}
+
+my $width = 600;
+my $height = 600;
+my $params = $r->param;
+my $columns = [
+ ['accession','Accession'],
+ ['tc_code' => 'TC code'],
+ ['tc_description' => 'TC Description'],
+ ['family' => 'Family'],
+ ['family_num' => 'Family Number'],
+ ['protein_description' => 'Protein Description'],
+ ['arammemnon' => 'Aram memnon'],
+ ['conpred' => 'Con pred'],
+ ['cluster' => 'Cluster'],
+ ['pol_pref' => 'Pol pref'],
+ ['affy_id' => 'Affy ID'],
+ ['ms' => 'MS'],
+ ['bc' => 'BC'],
+ ['tc' => 'TC'],
+ ['mp' => 'MP'],
+ ['dry_pol' => 'Dry Pollen'],
+ ['30m' => '30 min'],
+ ['4h' => '4 hours'],
+ ['siv' => 'SIV'],
+];
+
+$m->comp('generate_gd.html', data => \@data, width => $width, height => $height, points => \@points, id_list => \@id_list, output_filename => "$accessions_list[0].png");
+# <& generate_svg.html, width => $width, height => $height, points => $points, id_list => \@id_list, family => $family &>
+#  <embed id="svg" src="images/family/<% $family %>.svg" align="bottom" width="1000" height="600"></embed>
+my $graph_url = qq"images/family/${accessions_list[0]}.png";
+print qq(<img src="$graph_url">
+</center>
+	 );
+
+$m->comp('table_head.html', table => $search_table, columns => $columns);
+
+my $individual_cound = 0;
+foreach my $dat (@data) {
+  print qq"<tr>
+";
+ foreach my $col (@{$columns}) {
+  my $column_name = $col->[0];
+  print "<td align=\"center\">$dat->{$column_name}</td>\n";
+  }
+ }
+
+</%perl>
+
+<%init>
+</%init>
+<%args>
+  $accessions => undef
+  $ids => undef
+  $search_table => "pollen"
+</%args>
